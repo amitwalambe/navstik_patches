@@ -1,0 +1,1204 @@
+--- Firmware/ROMFS/navstik_common/mixers/easystar.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/easystar.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,31 @@
++EASYSTAR / EASYSTAR II MIXER
++============================
++
++Aileron mixer
++-------------
++One output - would be easy to add support for 2 servos
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 0  10000  10000      0 -10000  10000
++
++Elevator mixer
++------------
++
++M: 1
++O:       10000   10000      0 -10000  10000
++S: 0 1  -10000  -10000      0 -10000  10000
++
++Rudder mixer
++------------
++
++M: 1
++O:       10000   10000      0 -10000  10000
++S: 0 2  -10000  -10000      0 -10000  10000
++
++Motor speed mixer
++-----------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_AERT.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_AERT.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,85 @@
++Aileron/rudder/elevator/throttle mixer for PX4FMU
++==================================================
++
++This file defines mixers suitable for controlling a fixed wing aircraft with
++aileron, rudder, elevator and throttle controls using PX4FMU. The configuration
++assumes the aileron servo(s) are connected to PX4FMU servo output 0, the
++elevator to output 1, the rudder to output 2 and the throttle to output 3.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++Aileron mixer
++-------------
++Two scalers total (output, roll).
++
++This mixer assumes that the aileron servos are set up correctly mechanically;
++depending on the actual configuration it may be necessary to reverse the scaling
++factors (to reverse the servo movement) and adjust the offset, scaling and
++endpoints to suit.
++
++As there is only one output, if using two servos adjustments to compensate for
++differences between the servos must be made mechanically.  To obtain the correct
++motion using a Y  cable, the servos can be positioned reversed from one another.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 0  10000  10000      0 -10000  10000
++
++Elevator mixer
++------------
++Two scalers total (output, roll).
++
++This mixer assumes that the elevator servo is set up correctly mechanically;
++depending on the actual configuration it may be necessary to reverse the scaling
++factors (to reverse the servo movement) and adjust the offset, scaling and
++endpoints to suit.
++
++M: 1
++O:       10000   10000      0 -10000  10000
++S: 0 1  -10000  -10000      0 -10000  10000
++
++Rudder mixer
++------------
++Two scalers total (output, yaw).
++
++This mixer assumes that the rudder servo is set up correctly mechanically;
++depending on the actual configuration it may be necessary to reverse the scaling
++factors (to reverse the servo movement) and adjust the offset, scaling and
++endpoints to suit.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 2  10000  10000      0 -10000  10000
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++
++Gimbal / flaps / payload mixer for last four channels,
++using the payload control group
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 2 0  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 2 1  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 2 2  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 2 3  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_AET.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_AET.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,80 @@
++Aileron/elevator/throttle mixer for PX4FMU
++==================================================
++
++This file defines mixers suitable for controlling a fixed wing aircraft with
++aileron, elevator and throttle controls using PX4FMU. The configuration  assumes
++the aileron servo(s) are connected to PX4FMU servo output 0, the elevator to
++output 1 and the throttle to output 3.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++Aileron mixer
++-------------
++Two scalers total (output, roll).
++
++This mixer assumes that the aileron servos are set up correctly mechanically;
++depending on the actual configuration it may be necessary to reverse the scaling
++factors (to reverse the servo movement) and adjust the offset, scaling and
++endpoints to suit.
++
++As there is only one output, if using two servos adjustments to compensate for
++differences between the servos must be made mechanically.  To obtain the correct
++motion using a Y  cable, the servos can be positioned reversed from one another.
++
++Alternatively, output 2 could be used as a second aileron servo output with
++separate mixing.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 0  10000  10000      0 -10000  10000
++
++Elevator mixer
++------------
++Two scalers total (output, roll).
++
++This mixer assumes that the elevator servo is set up correctly mechanically;
++depending on the actual configuration it may be necessary to reverse the scaling
++factors (to reverse the servo movement) and adjust the offset, scaling and
++endpoints to suit.
++
++M: 1
++O:       10000   10000      0 -10000  10000
++S: 0 1  -10000  -10000      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++
++Gimbal / flaps / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_CCPM.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_CCPM.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,53 @@
++Helicopter 120 degree Cyclic-Collective-Pitch Mixing (CCPM) for PX4FMU
++==================================================
++
++
++Output 0 - Rear Servo Mixer
++----------------
++
++Rear Servo = Collective (Thrust - 3) + Elevator (Pitch - 1)
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 3  10000  10000      0 -10000  10000
++S: 0 1  10000  10000      0 -10000  10000
++
++
++Output 1 - Left Servo Mixer
++-----------------
++Left Servo = Collective (Thurst - 3) - 0.5 * Elevator (Pitch - 1) + 0.866 * Aileron (Roll - 0)
++
++M: 3
++O:       10000   10000      0 -10000  10000
++S: 0 3  -10000  -10000      0 -10000  10000
++S: 0 1   -5000   -5000      0 -10000  10000
++S: 0 0    8660    8660      0 -10000  10000
++
++
++Output 2 - Right Servo Mixer
++----------------
++Right Servo = Collective (Thurst - 3) - 0.5 * Elevator (Pitch - 1) - 0.866 * Aileron (Roll - 0)
++
++
++M: 3
++O:       10000   10000      0 -10000  10000
++S: 0 3  -10000  -10000      0 -10000  10000
++S: 0 1   -5000   -5000      0 -10000  10000
++S: 0 0   -8660   -8660      0 -10000  10000
++
++Output 3 - Tail Servo Mixer
++----------------
++Tail Servo = Yaw (control index = 2)
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 2  10000  10000      0 -10000  10000
++
++
++Output 4 - Motor speed mixer
++-----------------
++This would be the motor speed control output from governor power demand- not sure what index to use here?
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4      0  20000 -10000 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_delta.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_delta.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,70 @@
++Delta-wing mixer for PX4FMU
++===========================
++
++This file defines mixers suitable for controlling a delta wing aircraft using
++PX4FMU. The configuration assumes the elevon servos are connected to PX4FMU
++servo outputs 0 and 1 and the motor speed control to output 3. Output 2 is
++assumed to be unused.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++See the README for more information on the scaler format.
++
++Elevon mixers
++-------------
++Three scalers total (output, roll, pitch).
++
++On the assumption that the two elevon servos are physically reversed, the pitch
++input is inverted between the two servos.
++
++The scaling factor for roll inputs is adjusted to implement differential travel
++for the elevons.
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0   3000   5000      0 -10000  10000
++S: 0 1   5000   5000      0 -10000  10000
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0   5000   3000      0 -10000  10000
++S: 0 1  -5000  -5000      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++
++Gimbal / flaps / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
++
+--- Firmware/ROMFS/navstik_common/mixers/FMU_FX79.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_FX79.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,72 @@
++FX-79 Delta-wing mixer for PX4FMU
++=================================
++
++Designed for FX-79.
++
++TODO (sjwilks): Add mixers for flaps.
++
++This file defines mixers suitable for controlling a delta wing aircraft using
++PX4FMU. The configuration assumes the elevon servos are connected to PX4FMU
++servo outputs 0 and 1 and the motor speed control to output 3. Output 2 is
++assumed to be unused.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++See the README for more information on the scaler format.
++
++Elevon mixers
++-------------
++Three scalers total (output, roll, pitch).
++
++On the assumption that the two elevon servos are physically reversed, the pitch
++input is inverted between the two servos.
++
++The scaling factor for roll inputs is adjusted to implement differential travel
++for the elevons.
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0   7500   7500      0 -10000  10000
++S: 0 1   8000   8000      0 -10000  10000
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0   7500   7500      0 -10000  10000
++S: 0 1  -8000  -8000      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++Gimbal / flaps / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_hexa_cox.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_hexa_cox.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,3 @@
++# Hexa coaxial
++
++R: 6c 10000 10000 10000 0
+--- Firmware/ROMFS/navstik_common/mixers/FMU_hexa_+.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_hexa_+.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,3 @@
++# Hexa +
++
++R: 6+ 10000 10000 10000 0
+--- Firmware/ROMFS/navstik_common/mixers/FMU_hexa_x.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_hexa_x.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,3 @@
++# Hexa X
++
++R: 6x 10000 10000 10000 0
+--- Firmware/ROMFS/navstik_common/mixers/FMU_octo_cox.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_octo_cox.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,3 @@
++# Octo coaxial
++
++R: 8c 10000 10000 10000 0
+--- Firmware/ROMFS/navstik_common/mixers/FMU_octo_+.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_octo_+.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,3 @@
++# Octo +
++
++R: 8+ 10000 10000 10000 0
+--- Firmware/ROMFS/navstik_common/mixers/FMU_octo_x.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_octo_x.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,3 @@
++# Octo X
++
++R: 8x 10000 10000 10000 0
+--- Firmware/ROMFS/navstik_common/mixers/FMU_pass.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_pass.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,23 @@
++Passthrough mixer for PX4FMU
++============================
++
++This file defines passthrough mixers suitable for testing.
++
++Channel group 0, channels 0-3 are passed directly through to the outputs.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 0  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 1  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 2  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3  10000  10000      0 -10000  10000
++
+--- Firmware/ROMFS/navstik_common/mixers/FMU_Q.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_Q.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,70 @@
++Delta-wing mixer for PX4FMU
++===========================
++
++Designed for Bormatec Camflyer Q
++
++This file defines mixers suitable for controlling a delta wing aircraft using
++PX4FMU. The configuration assumes the elevon servos are connected to PX4FMU
++servo outputs 0 and 1 and the motor speed control to output 3. Output 2 is
++assumed to be unused.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++See the README for more information on the scaler format.
++
++Elevon mixers
++-------------
++Three scalers total (output, roll, pitch).
++
++On the assumption that the two elevon servos are physically reversed, the pitch
++input is inverted between the two servos.
++
++The scaling factor for roll inputs is adjusted to implement differential travel
++for the elevons.
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0  -8000  -8000      0 -10000  10000
++S: 0 1   6000   6000      0 -10000  10000
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0  -8000  -8000      0 -10000  10000
++S: 0 1  -6000  -6000      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++Gimbal / flaps / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_quad_+.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_quad_+.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,27 @@
++Multirotor mixer for PX4FMU
++===========================
++
++This file defines a single mixer for a quadrotor in the + configuration. All controls
++are mixed 100%.
++
++R: 4+ 10000 10000 10000 0
++
++
++Gimbal / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_quad_v.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_quad_v.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,26 @@
++Multirotor mixer for PX4FMU
++===========================
++
++This file defines a single mixer for a quadrotor in the V configuration.  All controls
++are mixed 100%.
++
++R: 4v 10000 10000 10000 0
++
++Gimbal / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_quad_w.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_quad_w.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,25 @@
++Multirotor mixer for PX4FMU
++===========================
++
++This file defines a single mixer for a quadrotor with a wide configuration.  All controls are mixed 100%.
++
++R: 4w 10000 10000 10000 0
++
++Gimbal / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_quad_x.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_quad_x.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,26 @@
++Multirotor mixer for PX4FMU
++===========================
++
++This file defines a single mixer for a quadrotor in the X configuration.  All controls
++are mixed 100%.
++
++R: 4x 10000 10000 10000 0
++
++Gimbal / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_RET.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_RET.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,73 @@
++Rudder/elevator/throttle mixer for PX4FMU
++=========================================
++
++This file defines mixers suitable for controlling a fixed wing aircraft with
++rudder, elevator and throttle controls using PX4FMU. The configuration assumes
++the rudder servo is connected to PX4FMU servo output 0, the elevator to output 1
++and the throttle to output 3.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++Rudder mixer
++------------
++Two scalers total (output, roll).
++
++This mixer assumes that the rudder servo is set up correctly mechanically;
++depending on the actual configuration it may be necessary to reverse the scaling
++factors (to reverse the servo movement) and adjust the offset, scaling and
++endpoints to suit.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 0  10000  10000      0 -10000  10000
++
++Elevator mixer
++------------
++Two scalers total (output, roll).
++
++This mixer assumes that the elevator servo is set up correctly mechanically;
++depending on the actual configuration it may be necessary to reverse the scaling
++factors (to reverse the servo movement) and adjust the offset, scaling and
++endpoints to suit.
++
++M: 1
++O:       10000   10000      0 -10000  10000
++S: 0 1  -10000  -10000      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++
++Gimbal / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/FMU_X5.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/FMU_X5.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,68 @@
++Delta-wing mixer for PX4FMU
++===========================
++
++This file defines mixers suitable for controlling a delta wing aircraft using
++PX4FMU. The configuration assumes the elevon servos are connected to PX4FMU
++servo outputs 0 and 1 and the motor speed control to output 3. Output 2 is
++assumed to be unused.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++See the README for more information on the scaler format.
++
++Elevon mixers
++-------------
++Three scalers total (output, roll, pitch).
++
++On the assumption that the two elevon servos are physically reversed, the pitch
++input is inverted between the two servos.
++
++The scaling factor for roll inputs is adjusted to implement differential travel
++for the elevons.
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0  -8000  -8000      0 -10000  10000
++S: 0 1   6000   6000      0 -10000  10000
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0  -8000  -8000      0 -10000  10000
++S: 0 1  -6000  -6000      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++Gimbal / flaps / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/IO_pass.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/IO_pass.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,38 @@
++Passthrough mixer for PX4IO
++============================
++
++This file defines passthrough mixers suitable for testing.
++
++Channel group 0, channels 0-7 are passed directly through to the outputs.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 0  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 1  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 2  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/phantom.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/phantom.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,67 @@
++Phantom FX-61 mixer
++===================
++
++This file defines mixers suitable for controlling a delta wing aircraft using
++PX4/Pixhawk. The configuration assumes the elevon servos are connected to
++servo outputs 0 and 1 and the motor speed control to output 3. Output 2 is
++assumed to be unused.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++See the README for more information on the scaler format.
++
++Elevon mixers
++-------------
++Three scalers total (output, roll, pitch).
++
++On the assumption that the two elevon servos are physically reversed, the pitch
++input is inverted between the two servos.
++
++The scaling factor are set so that pitch will have more travel than roll.
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0  -6000  -6000      0 -10000  10000
++S: 0 1   6500   6500      0 -10000  10000
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0  -6000  -6000      0 -10000  10000
++S: 0 1  -6500  -6500      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++Gimbal / flaps / payload mixer for last four channels
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 4  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 5  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 6  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 7  10000  10000      0 -10000  10000
+--- Firmware/ROMFS/navstik_common/mixers/README	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/README	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,154 @@
++PX4 mixer definitions
++=====================
++
++Files in this directory implement example mixers that can be used as a basis
++for customisation, or for general testing purposes.
++
++Mixer basics
++------------
++
++Mixers combine control values from various sources (control tasks, user inputs,
++etc.) and produce output values suitable for controlling actuators; servos,
++motors, switches and so on.
++
++An actuator derives its value from the combination of one or more control
++values. Each of the control values is scaled according to the actuator's
++configuration and then combined to produce the actuator value, which may then be
++further scaled to suit the specific output type.
++
++Internally, all scaling is performed using floating point values. Inputs and
++outputs are clamped to the range -1.0 to 1.0.
++
++control    control   control
++   |          |         |
++   v          v         v
++ scale      scale     scale
++   |          |         |
++   |          v         |
++   +-------> mix <------+
++              |
++            scale
++              |
++              v
++             out
++
++Scaling
++-------
++
++Basic scalers provide linear scaling of the input to the output.
++
++Each scaler allows the input value to be scaled independently for inputs
++greater/less than zero. An offset can be applied to the output, and lower and
++upper boundary constraints can be applied. Negative scaling factors cause the
++output to be inverted (negative input produces positive output).
++
++Scaler pseudocode:
++
++if (input < 0)
++    output = (input * NEGATIVE_SCALE) + OFFSET
++else
++    output = (input * POSITIVE_SCALE) + OFFSET
++
++if (output < LOWER_LIMIT)
++    output = LOWER_LIMIT
++if (output > UPPER_LIMIT)
++    output = UPPER_LIMIT
++
++Syntax
++------
++
++Mixer definitions are text files; lines beginning with a single capital letter
++followed by a colon are significant. All other lines are ignored, meaning that
++explanatory text can be freely mixed with the definitions.
++
++Each file may define more than one mixer; the allocation of mixers to actuators
++is specific to the device reading the mixer definition, and the number of
++actuator outputs generated by a mixer is specific to the mixer.
++
++A mixer begins with a line of the form
++
++	<tag>: <mixer arguments>
++
++The tag selects the mixer type; 'M' for a simple summing mixer, 'R' for a 
++multirotor mixer, etc.
++
++Null Mixer
++..........
++
++A null mixer consumes no controls and generates a single actuator output whose
++value is always zero.  Typically a null mixer is used as a placeholder in a
++collection of mixers in order to achieve a specific pattern of actuator outputs.
++
++The null mixer definition has the form:
++
++  Z:
++
++Simple Mixer
++............
++
++A simple mixer combines zero or more control inputs into a single actuator
++output.  Inputs are scaled, and the mixing function sums the result before
++applying an output scaler.
++
++A simple mixer definition begins with:
++
++  M: <control count>
++  O: <-ve scale> <+ve scale> <offset> <lower limit> <upper limit>
++
++If <control count> is zero, the sum is effectively zero and the mixer will
++output a fixed value that is <offset> constrained by <lower limit> and <upper
++limit>.
++
++The second line defines the output scaler with scaler parameters as discussed
++above. Whilst the calculations are performed as floating-point operations, the
++values stored in the definition file are scaled by a factor of 10000; i.e. an
++offset of -0.5 is encoded as -5000.
++
++The definition continues with <control count> entries describing the control
++inputs and their scaling, in the form:
++
++  S: <group> <index> <-ve scale> <+ve scale> <offset> <lower limit> <upper limit>
++
++The <group> value identifies the control group from which the scaler will read,
++and the <index> value an offset within that group.  These values are specific to
++the device reading the mixer definition.
++
++When used to mix vehicle controls, mixer group zero is the vehicle attitude
++control group, and index values zero through three are normally roll, pitch,
++yaw and thrust respectively.
++
++The remaining fields on the line configure the control scaler with parameters as
++discussed above. Whilst the calculations are performed as floating-point
++operations, the values stored in the definition file are scaled by a factor of
++10000; i.e. an offset of -0.5 is encoded as -5000.
++
++Multirotor Mixer
++................
++
++The multirotor mixer combines four control inputs (roll, pitch, yaw, thrust)
++into a set of actuator outputs intended to drive motor speed controllers.
++
++The mixer definition is a single line of the form:
++
++R: <geometry> <roll scale> <pitch scale> <yaw scale> <deadband>
++
++The supported geometries include:
++
++  4x - quadrotor in X configuration
++  4+ - quadrotor in + configuration
++  6x - hexcopter in X configuration
++  6+ - hexcopter in + configuration
++  8x - octocopter in X configuration
++  8+ - octocopter in + configuration
++  
++Each of the roll, pitch and yaw scale values determine scaling of the roll,
++pitch and yaw controls relative to the thrust control.  Whilst the calculations
++are performed as floating-point operations, the values stored in the definition
++file are scaled by a factor of 10000; i.e. an factor of 0.5 is encoded as 5000.
++
++Roll, pitch and yaw inputs are expected to range from -1.0 to 1.0, whilst the
++thrust input ranges from 0.0 to 1.0.  Output for each actuator is in the 
++range -1.0 to 1.0.
++
++In the case where an actuator saturates, all actuator values are rescaled so that 
++the saturating actuator is limited to 1.0.
+\ No newline at end of file
+--- Firmware/ROMFS/navstik_common/mixers/Viper.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/Viper.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,71 @@
++Viper Delta-wing mixer
++=================================
++
++Designed for Viper.
++
++TODO (sjwilks): Add mixers for flaps.
++
++This file defines mixers suitable for controlling a delta wing aircraft using
++PX4FMU. The configuration assumes the elevon servos are connected to PX4FMU
++servo outputs 0 and 1 and the motor speed control to output 3. Output 2 is
++assumed to be unused.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++See the README for more information on the scaler format.
++
++Elevon mixers
++-------------
++Three scalers total (output, roll, pitch).
++
++On the assumption that the two elevon servos are physically reversed, the pitch
++input is inverted between the two servos.
++
++The scaling factor for roll inputs is adjusted to implement differential travel
++for the elevons.
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0   7500   7500      0 -10000  10000
++S: 0 1   8000   8000      0 -10000  10000
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0   7500   7500      0 -10000  10000
++S: 0 1  -8000  -8000      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000
++
++Inputs to the mixer come from channel group 2 (payload), channels 0
++(bay servo 1), 1 (bay servo 2) and 3 (drop release).
++-----------------------------------------------------
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 2 0  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 2 1  10000  10000      0 -10000  10000
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 2 2 -10000 -10000      0 -10000  10000
++
++
+--- Firmware/ROMFS/navstik_common/mixers/wingwing.mix	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/mixers/wingwing.mix	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,51 @@
++Delta-wing mixer for PX4FMU
++===========================
++
++Designed for Wing Wing Z-84
++
++This file defines mixers suitable for controlling a delta wing aircraft using
++PX4FMU. The configuration assumes the elevon servos are connected to PX4FMU
++servo outputs 0 and 1 and the motor speed control to output 3. Output 2 is
++assumed to be unused.
++
++Inputs to the mixer come from channel group 0 (vehicle attitude), channels 0
++(roll), 1 (pitch) and 3 (thrust).
++
++See the README for more information on the scaler format.
++
++Elevon mixers
++-------------
++Three scalers total (output, roll, pitch).
++
++On the assumption that the two elevon servos are physically reversed, the pitch
++input is inverted between the two servos.
++
++The scaling factor for roll inputs is adjusted to implement differential travel
++for the elevons.
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0  -6000  -6000      0 -10000  10000
++S: 0 1   6500   6500      0 -10000  10000
++
++M: 2
++O:      10000  10000      0 -10000  10000
++S: 0 0  -6000  -6000      0 -10000  10000
++S: 0 1  -6500  -6500      0 -10000  10000
++
++Output 2
++--------
++This mixer is empty.
++
++Z:
++
++Motor speed mixer
++-----------------
++Two scalers total (output, thrust).
++
++This mixer generates a full-range output (-1 to 1) from an input in the (0 - 1)
++range.  Inputs below zero are treated as zero.
++
++M: 1
++O:      10000  10000      0 -10000  10000
++S: 0 3      0  20000 -10000 -10000  10000

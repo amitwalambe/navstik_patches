@@ -1,0 +1,1870 @@
+--- Firmware/nuttx-configs/navstik-v1/include/board.h	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/nuttx-configs/navstik-v1/include/board.h	2015-04-07 14:57:40.254235563 +0530
+@@ -0,0 +1,326 @@
++/************************************************************************************
++ * configs/stm32f4discovery/include/board.h
++ * include/arch/board/board.h
++ *   Copyright (c) 2014 NavStik Development Team. All rights reserved.
++ *   Copyright (C) 2012 Gregory Nutt. All rights reserved.
++ *   Author: Gregory Nutt <gnutt@nuttx.org>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ * 3. Neither the name NuttX nor the names of its contributors may be
++ *    used to endorse or promote products derived from this software
++ *    without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ *
++ ************************************************************************************/
++
++#ifndef __CONFIG_NAVSTIK_V1_INCLUDE_BOARD_H
++#define __CONFIG_NAVSTIK_V1_INCLUDE_BOARD_H
++
++/************************************************************************************
++ * Included Files
++ ************************************************************************************/
++
++#include <nuttx/config.h>
++
++#ifndef __ASSEMBLY__
++# include <stdint.h>
++#endif
++
++#include "stm32_rcc.h"
++#include "stm32_sdio.h"
++#include "stm32.h"
++
++/************************************************************************************
++ * Definitions
++ ************************************************************************************/
++
++/* Clocking *************************************************************************/
++/* The NAVSTIK uses a 25MHz crystal connected to the HSE.
++ *
++ * This is the canonical configuration:
++ *   System Clock source           : PLL (HSE)
++ *   SYSCLK(Hz)                    : 168000000    Determined by PLL configuration
++ *   HCLK(Hz)                      : 168000000    (STM32_RCC_CFGR_HPRE)
++ *   AHB Prescaler                 : 1            (STM32_RCC_CFGR_HPRE)
++ *   APB1 Prescaler                : 4            (STM32_RCC_CFGR_PPRE1)
++ *   APB2 Prescaler                : 2            (STM32_RCC_CFGR_PPRE2)
++ *   HSE Frequency(Hz)             : 24000000     (STM32_BOARD_XTAL)
++ *   PLLM                          : 24           (STM32_PLLCFG_PLLM)
++ *   PLLN                          : 336          (STM32_PLLCFG_PLLN)
++ *   PLLP                          : 2            (STM32_PLLCFG_PLLP)
++ *   PLLQ                          : 7            (STM32_PLLCFG_PLLQ)
++ *   Main regulator output voltage : Scale1 mode  Needed for high speed SYSCLK
++ *   Flash Latency(WS)             : 5
++ *   Prefetch Buffer               : OFF
++ *   Instruction cache             : ON
++ *   Data cache                    : ON
++ *   Require 48MHz for USB OTG FS, : Enabled
++ *   SDIO and RNG clock
++ */
++
++/* HSI - 16 MHz RC factory-trimmed
++ * LSI - 32 KHz RC
++ * HSE - On-board crystal frequency is 24MHz
++ * LSE - not installed
++ */
++
++#define STM32_BOARD_XTAL        25000000ul
++
++#define STM32_HSI_FREQUENCY     16000000ul
++#define STM32_LSI_FREQUENCY     32000
++#define STM32_HSE_FREQUENCY     STM32_BOARD_XTAL
++//#define STM32_LSE_FREQUENCY     32768
++
++/* Main PLL Configuration.
++ *
++ * PLL source is HSE
++ * PLL_VCO = (STM32_HSE_FREQUENCY / PLLM) * PLLN
++ *         = (25,000,000 / 25) * 336
++ *         = 336,000,000
++ * SYSCLK  = PLL_VCO / PLLP
++ *         = 336,000,000 / 2 = 168,000,000
++ * USB OTG FS, SDIO and RNG Clock
++ *         =  PLL_VCO / PLLQ
++ *         = 48,000,000
++ */
++
++#define STM32_PLLCFG_PLLM       RCC_PLLCFG_PLLM(25)
++#define STM32_PLLCFG_PLLN       RCC_PLLCFG_PLLN(336)
++#define STM32_PLLCFG_PLLP       RCC_PLLCFG_PLLP_2
++#define STM32_PLLCFG_PLLQ       RCC_PLLCFG_PLLQ(7)
++
++#define STM32_SYSCLK_FREQUENCY  168000000ul
++
++/* AHB clock (HCLK) is SYSCLK (168MHz) */
++
++#define STM32_RCC_CFGR_HPRE     RCC_CFGR_HPRE_SYSCLK  /* HCLK  = SYSCLK / 1 */
++#define STM32_HCLK_FREQUENCY    STM32_SYSCLK_FREQUENCY
++#define STM32_BOARD_HCLK        STM32_HCLK_FREQUENCY  /* same as above, to satisfy compiler */
++
++/* APB1 clock (PCLK1) is HCLK/4 (42MHz) */
++
++#define STM32_RCC_CFGR_PPRE1    RCC_CFGR_PPRE1_HCLKd4     /* PCLK1 = HCLK / 4 */
++#define STM32_PCLK1_FREQUENCY   (STM32_HCLK_FREQUENCY/4)
++
++/* Timers driven from APB1 will be twice PCLK1 */
++
++#define STM32_APB1_TIM2_CLKIN   (2*STM32_PCLK1_FREQUENCY)
++#define STM32_APB1_TIM3_CLKIN   (2*STM32_PCLK1_FREQUENCY)
++#define STM32_APB1_TIM4_CLKIN   (2*STM32_PCLK1_FREQUENCY)
++#define STM32_APB1_TIM5_CLKIN   (2*STM32_PCLK1_FREQUENCY)
++#define STM32_APB1_TIM6_CLKIN   (2*STM32_PCLK1_FREQUENCY)
++#define STM32_APB1_TIM7_CLKIN   (2*STM32_PCLK1_FREQUENCY)
++#define STM32_APB1_TIM12_CLKIN  (2*STM32_PCLK1_FREQUENCY)
++#define STM32_APB1_TIM13_CLKIN  (2*STM32_PCLK1_FREQUENCY)
++#define STM32_APB1_TIM14_CLKIN  (2*STM32_PCLK1_FREQUENCY)
++
++/* APB2 clock (PCLK2) is HCLK/2 (84MHz) */
++
++#define STM32_RCC_CFGR_PPRE2    RCC_CFGR_PPRE2_HCLKd2     /* PCLK2 = HCLK / 2 */
++#define STM32_PCLK2_FREQUENCY   (STM32_HCLK_FREQUENCY/2)
++
++/* Timers driven from APB2 will be twice PCLK2 */
++
++#define STM32_APB2_TIM1_CLKIN   (2*STM32_PCLK2_FREQUENCY)
++#define STM32_APB2_TIM8_CLKIN   (2*STM32_PCLK2_FREQUENCY)
++#define STM32_APB2_TIM9_CLKIN   (2*STM32_PCLK2_FREQUENCY)
++#define STM32_APB2_TIM10_CLKIN  (2*STM32_PCLK2_FREQUENCY)
++#define STM32_APB2_TIM11_CLKIN  (2*STM32_PCLK2_FREQUENCY)
++
++/* Timer Frequencies, if APBx is set to 1, frequency is same to APBx
++ * otherwise frequency is 2xAPBx.
++ * Note: TIM1,8 are on APB2, others on APB1
++ */
++
++#define STM32_TIM18_FREQUENCY   (2*STM32_PCLK2_FREQUENCY)
++#define STM32_TIM27_FREQUENCY   (2*STM32_PCLK1_FREQUENCY)
++
++/* LED definitions ******************************************************************/
++/* If CONFIG_ARCH_LEDS is not defined, then the user can control the LEDs in any
++ * way.  The following definitions are used to access individual LEDs.
++ */
++
++/* LED index values for use with stm32_setled() */
++
++#define BOARD_LED1        0
++#define BOARD_LED2        1
++#define BOARD_NLEDS       2
++
++#define BOARD_LED_BLUE    BOARD_LED1
++#define BOARD_LED_RED     BOARD_LED2
++
++/* LED bits for use with stm32_setleds() */
++
++#define BOARD_LED1_BIT    (1 << BOARD_LED1)
++#define BOARD_LED2_BIT    (1 << BOARD_LED2)
++
++/* If CONFIG_ARCH_LEDs is defined, then NuttX will control the 2 LEDs on board the
++ * navstik-v1.  The following definitions describe how NuttX controls the LEDs:
++ */
++
++#define LED_STARTED       0  /* LED1 */
++#define LED_HEAPALLOCATE  1  /* LED2 */
++#define LED_IRQSENABLED   2  /* LED1 */
++#define LED_STACKCREATED  3  /* LED1 + LED2 */
++#define LED_INIRQ         4  /* LED1 */
++#define LED_SIGNAL        5  /* LED2 */
++#define LED_ASSERTION     6  /* LED1 + LED2 */
++#define LED_PANIC         7  /* LED1 + LED2 */
++
++/* Alternate function pin selections ************************************************/
++
++/*
++ * UARTs.
++ *
++ * Note that UART5 has no optional pinout, so it is not listed here.
++ */
++#define GPIO_USART1_RX	GPIO_USART1_RX_2
++#define GPIO_USART1_TX	GPIO_USART1_TX_2
++
++#define GPIO_USART2_RX	GPIO_USART2_RX_1
++#define GPIO_USART2_TX	GPIO_USART2_TX_1
++//#define GPIO_USART2_RTS	GPIO_USART2_RTS_1
++//#define GPIO_USART2_CTS	GPIO_USART2_CTS_1
++
++#ifdef NAVSTIK_CONFIG_SPEKTRUM
++#define GPIO_USART6_RX	GPIO_USART6_RX_1
++#define GPIO_USART6_TX	GPIO_USART6_TX_1
++#define DMAMAP_USART6_RX DMAMAP_USART6_RX_2
++#endif
++
++/* UART DMA configuration for USART1/6 */
++#define DMAMAP_USART1_RX DMAMAP_USART1_RX_2
++ 
++/*
++ * CAN
++ *
++ * CAN2 is routed to the expansion connector.
++ */
++
++//#define GPIO_CAN2_RX	GPIO_CAN2_RX_1
++//#define GPIO_CAN2_TX	GPIO_CAN2_TX_1
++
++/*
++ * I2C
++ *
++ * The optional _GPIO configurations allow the I2C driver to manually
++ * reset the bus to clear stuck slaves.  They match the pin configuration,
++ * but are normally-high GPIOs.
++ */
++#define GPIO_I2C1_SCL		GPIO_I2C1_SCL_2
++#define GPIO_I2C1_SDA		GPIO_I2C1_SDA_2
++#define GPIO_I2C1_SCL_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTB|GPIO_PIN8)
++#define GPIO_I2C1_SDA_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTB|GPIO_PIN9)
++
++/*
++#define GPIO_I2C2_SCL		GPIO_I2C2_SCL_1
++#define GPIO_I2C2_SDA		GPIO_I2C2_SDA_1
++#define GPIO_I2C2_SCL_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTB|GPIO_PIN10)
++#define GPIO_I2C2_SDA_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTB|GPIO_PIN11)
++*/
++
++#define GPIO_I2C3_SCL		GPIO_I2C3_SCL_1
++#define GPIO_I2C3_SDA		GPIO_I2C3_SDA_1
++#define GPIO_I2C3_SCL_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTA|GPIO_PIN8)
++#define GPIO_I2C3_SDA_GPIO	(GPIO_OUTPUT|GPIO_OPENDRAIN|GPIO_SPEED_50MHz|GPIO_OUTPUT_SET|GPIO_PORTC|GPIO_PIN9)
++
++/* Configure interrupt GPIOs of peripherals on I2C bus */
++#define NAVSTIK_I2C_OBDEV_MPU60x0_INT	(GPIO_INPUT|GPIO_PORTC|GPIO_PIN0)
++#define NAVSTIK_I2C_OBDEV_HMC5883_INT	(GPIO_INPUT|GPIO_PORTC|GPIO_PIN14)
++#define NAVSTIK_I2C_OBDEV_MS4515_INT	(GPIO_INPUT|GPIO_PORTC|GPIO_PIN13)
++
++/*
++ * SPI
++ *
++ * SPI2 is connected to the microSD slot.
++ */
++#define GPIO_SPI2_MISO	(GPIO_SPI2_MISO_2|GPIO_SPEED_50MHz)
++#define GPIO_SPI2_MOSI	(GPIO_SPI2_MOSI_2|GPIO_SPEED_50MHz)
++#define GPIO_SPI2_SCK	(GPIO_SPI2_SCK_1|GPIO_SPEED_50MHz)
++
++#define NAVSTIK_SPIDEV_FLASH	1
++#define NAVSTIK_SPIDEV_SDCARD	2
++
++/* SPI DMA configuration for SPI3 (microSD) */
++//#define DMACHAN_SPI3_RX DMAMAP_SPI3_RX_1
++//#define DMACHAN_SPI3_TX DMAMAP_SPI3_TX_2
++/* XXX since we allocate the HP work stack from CCM RAM on normal system startup,
++   SPI1 will never run in DMA mode - so we can just give it a random config here.
++   What we really need to do is to make DMA configurable per channel, and always
++   disable it for SPI1. */
++//#define DMACHAN_SPI1_RX DMAMAP_SPI1_RX_1
++//#define DMACHAN_SPI1_TX DMAMAP_SPI1_TX_2
++
++/************************************************************************************
++ * Public Data
++ ************************************************************************************/
++
++#ifndef __ASSEMBLY__
++
++#undef EXTERN
++#if defined(__cplusplus)
++#define EXTERN extern "C"
++extern "C" {
++#else
++#define EXTERN extern
++#endif
++
++/************************************************************************************
++ * Public Function Prototypes
++ ************************************************************************************/
++/************************************************************************************
++ * Name: stm32_boardinitialize
++ *
++ * Description:
++ *   All STM32 architectures must provide the following entry point.  This entry point
++ *   is called early in the intitialization -- after all memory has been configured
++ *   and mapped but before any devices have been initialized.
++ *
++ ************************************************************************************/
++
++EXTERN void stm32_boardinitialize(void);
++
++/************************************************************************************
++ * Name:  stm32_ledinit, stm32_setled, and stm32_setleds
++ *
++ * Description:
++ *   If CONFIG_ARCH_LEDS is defined, then NuttX will control the on-board LEDs.  If
++ *   CONFIG_ARCH_LEDS is not defined, then the following interfacesare available to
++ *   control the LEDs from user applications.
++ *
++ ************************************************************************************/
++
++#ifndef CONFIG_ARCH_LEDS
++EXTERN void stm32_ledinit(void);
++EXTERN void stm32_setled(int led, bool ledon);
++EXTERN void stm32_setleds(uint8_t ledset);
++#endif
++
++#undef EXTERN
++#if defined(__cplusplus)
++}
++#endif
++
++#endif /* __ASSEMBLY__ */
++#endif  /* __CONFIG_NAVSTIK_V1_INCLUDE_BOARD_H */
+--- Firmware/nuttx-configs/navstik-v1/include/nsh_romfsimg.h	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/nuttx-configs/navstik-v1/include/nsh_romfsimg.h	2015-04-07 14:57:40.254235563 +0530
+@@ -0,0 +1,42 @@
++/****************************************************************************
++ *
++ *   Copyright (C) 2013 PX4 Development Team. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ * 3. Neither the name PX4 nor the names of its contributors may be
++ *    used to endorse or promote products derived from this software
++ *    without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ *
++ ****************************************************************************/
++
++/**
++ * nsh_romfsetc.h
++ *
++ * This file is a stub for 'make export' purposes; the actual ROMFS
++ * must be supplied by the library client.
++ */
++
++extern unsigned char romfs_img[];
++extern unsigned int romfs_img_len;
+--- Firmware/nuttx-configs/navstik-v1/nsh/defconfig	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/nuttx-configs/navstik-v1/nsh/defconfig	2015-04-07 14:57:40.254235563 +0530
+@@ -0,0 +1,987 @@
++#
++# Automatically generated file; DO NOT EDIT.
++# Nuttx/ Configuration
++#
++CONFIG_NUTTX_NEWCONFIG=y
++
++#
++# Build Setup
++#
++# CONFIG_EXPERIMENTAL is not set
++# CONFIG_HOST_LINUX is not set
++CONFIG_HOST_OSX=y
++# CONFIG_HOST_WINDOWS is not set
++# CONFIG_HOST_OTHER is not set
++
++#
++# Build Configuration
++#
++CONFIG_APPS_DIR="../apps"
++# CONFIG_BUILD_2PASS is not set
++
++#
++# Binary Output Formats
++#
++# CONFIG_RRLOAD_BINARY is not set
++# CONFIG_INTELHEX_BINARY is not set
++# CONFIG_MOTOROLA_SREC is not set
++CONFIG_RAW_BINARY=y
++
++#
++# Customize Header Files
++#
++# CONFIG_ARCH_STDBOOL_H is not set
++CONFIG_ARCH_MATH_H=y
++# CONFIG_ARCH_FLOAT_H is not set
++# CONFIG_ARCH_STDARG_H is not set
++
++#
++# Debug Options
++#
++# CONFIG_DEBUG is not set
++CONFIG_DEBUG_SYMBOLS=y
++
++#
++# System Type
++#
++# CONFIG_ARCH_8051 is not set
++CONFIG_ARCH_ARM=y
++# CONFIG_ARCH_AVR is not set
++# CONFIG_ARCH_HC is not set
++# CONFIG_ARCH_MIPS is not set
++# CONFIG_ARCH_RGMP is not set
++# CONFIG_ARCH_SH is not set
++# CONFIG_ARCH_SIM is not set
++# CONFIG_ARCH_X86 is not set
++# CONFIG_ARCH_Z16 is not set
++# CONFIG_ARCH_Z80 is not set
++CONFIG_ARCH="arm"
++
++#
++# ARM Options
++#
++# CONFIG_ARCH_CHIP_C5471 is not set
++# CONFIG_ARCH_CHIP_CALYPSO is not set
++# CONFIG_ARCH_CHIP_DM320 is not set
++# CONFIG_ARCH_CHIP_IMX is not set
++# CONFIG_ARCH_CHIP_KINETIS is not set
++# CONFIG_ARCH_CHIP_KL is not set
++# CONFIG_ARCH_CHIP_LM is not set
++# CONFIG_ARCH_CHIP_LPC17XX is not set
++# CONFIG_ARCH_CHIP_LPC214X is not set
++# CONFIG_ARCH_CHIP_LPC2378 is not set
++# CONFIG_ARCH_CHIP_LPC31XX is not set
++# CONFIG_ARCH_CHIP_LPC43XX is not set
++# CONFIG_ARCH_CHIP_NUC1XX is not set
++# CONFIG_ARCH_CHIP_SAM34 is not set
++CONFIG_ARCH_CHIP_STM32=y
++# CONFIG_ARCH_CHIP_STR71X is not set
++CONFIG_ARCH_CORTEXM4=y
++CONFIG_ARCH_FAMILY="armv7-m"
++CONFIG_ARCH_CHIP="stm32"
++CONFIG_ARMV7M_USEBASEPRI=y
++CONFIG_ARCH_HAVE_CMNVECTOR=y
++CONFIG_ARMV7M_CMNVECTOR=y
++CONFIG_ARCH_HAVE_FPU=y
++CONFIG_ARCH_FPU=y
++CONFIG_ARCH_HAVE_MPU=y
++# CONFIG_ARMV7M_MPU is not set
++
++#
++# ARMV7M Configuration Options
++#
++# CONFIG_ARMV7M_TOOLCHAIN_BUILDROOT is not set
++CONFIG_ARMV7M_TOOLCHAIN_GNU_EABI=y
++CONFIG_ARMV7M_STACKCHECK=y
++CONFIG_SERIAL_TERMIOS=y
++
++#
++# STM32 Configuration Options
++#
++# CONFIG_ARCH_CHIP_STM32L151C6 is not set
++# CONFIG_ARCH_CHIP_STM32L151C8 is not set
++# CONFIG_ARCH_CHIP_STM32L151CB is not set
++# CONFIG_ARCH_CHIP_STM32L151R6 is not set
++# CONFIG_ARCH_CHIP_STM32L151R8 is not set
++# CONFIG_ARCH_CHIP_STM32L151RB is not set
++# CONFIG_ARCH_CHIP_STM32L151V6 is not set
++# CONFIG_ARCH_CHIP_STM32L151V8 is not set
++# CONFIG_ARCH_CHIP_STM32L151VB is not set
++# CONFIG_ARCH_CHIP_STM32L152C6 is not set
++# CONFIG_ARCH_CHIP_STM32L152C8 is not set
++# CONFIG_ARCH_CHIP_STM32L152CB is not set
++# CONFIG_ARCH_CHIP_STM32L152R6 is not set
++# CONFIG_ARCH_CHIP_STM32L152R8 is not set
++# CONFIG_ARCH_CHIP_STM32L152RB is not set
++# CONFIG_ARCH_CHIP_STM32L152V6 is not set
++# CONFIG_ARCH_CHIP_STM32L152V8 is not set
++# CONFIG_ARCH_CHIP_STM32L152VB is not set
++# CONFIG_ARCH_CHIP_STM32F100C8 is not set
++# CONFIG_ARCH_CHIP_STM32F100CB is not set
++# CONFIG_ARCH_CHIP_STM32F100R8 is not set
++# CONFIG_ARCH_CHIP_STM32F100RB is not set
++# CONFIG_ARCH_CHIP_STM32F100RC is not set
++# CONFIG_ARCH_CHIP_STM32F100RD is not set
++# CONFIG_ARCH_CHIP_STM32F100RE is not set
++# CONFIG_ARCH_CHIP_STM32F100V8 is not set
++# CONFIG_ARCH_CHIP_STM32F100VB is not set
++# CONFIG_ARCH_CHIP_STM32F100VC is not set
++# CONFIG_ARCH_CHIP_STM32F100VD is not set
++# CONFIG_ARCH_CHIP_STM32F100VE is not set
++# CONFIG_ARCH_CHIP_STM32F103C4 is not set
++# CONFIG_ARCH_CHIP_STM32F103C8 is not set
++# CONFIG_ARCH_CHIP_STM32F103RET6 is not set
++# CONFIG_ARCH_CHIP_STM32F103VCT6 is not set
++# CONFIG_ARCH_CHIP_STM32F103VET6 is not set
++# CONFIG_ARCH_CHIP_STM32F103ZET6 is not set
++# CONFIG_ARCH_CHIP_STM32F105VBT7 is not set
++# CONFIG_ARCH_CHIP_STM32F107VC is not set
++# CONFIG_ARCH_CHIP_STM32F207IG is not set
++# CONFIG_ARCH_CHIP_STM32F302CB is not set
++# CONFIG_ARCH_CHIP_STM32F302CC is not set
++# CONFIG_ARCH_CHIP_STM32F302RB is not set
++# CONFIG_ARCH_CHIP_STM32F302RC is not set
++# CONFIG_ARCH_CHIP_STM32F302VB is not set
++# CONFIG_ARCH_CHIP_STM32F302VC is not set
++# CONFIG_ARCH_CHIP_STM32F303CB is not set
++# CONFIG_ARCH_CHIP_STM32F303CC is not set
++# CONFIG_ARCH_CHIP_STM32F303RB is not set
++# CONFIG_ARCH_CHIP_STM32F303RC is not set
++# CONFIG_ARCH_CHIP_STM32F303VB is not set
++# CONFIG_ARCH_CHIP_STM32F303VC is not set
++CONFIG_ARCH_CHIP_STM32F405RG=y
++# CONFIG_ARCH_CHIP_STM32F405VG is not set
++# CONFIG_ARCH_CHIP_STM32F405ZG is not set
++# CONFIG_ARCH_CHIP_STM32F407VE is not set
++# CONFIG_ARCH_CHIP_STM32F407VG is not set
++# CONFIG_ARCH_CHIP_STM32F407ZE is not set
++# CONFIG_ARCH_CHIP_STM32F407ZG is not set
++# CONFIG_ARCH_CHIP_STM32F407IE is not set
++# CONFIG_ARCH_CHIP_STM32F407IG is not set
++# CONFIG_ARCH_CHIP_STM32F427V is not set
++# CONFIG_ARCH_CHIP_STM32F427Z is not set
++# CONFIG_ARCH_CHIP_STM32F427I is not set
++# CONFIG_STM32_STM32L15XX is not set
++# CONFIG_STM32_ENERGYLITE is not set
++# CONFIG_STM32_STM32F10XX is not set
++# CONFIG_STM32_VALUELINE is not set
++# CONFIG_STM32_CONNECTIVITYLINE is not set
++# CONFIG_STM32_PERFORMANCELINE is not set
++# CONFIG_STM32_HIGHDENSITY is not set
++# CONFIG_STM32_MEDIUMDENSITY is not set
++# CONFIG_STM32_LOWDENSITY is not set
++# CONFIG_STM32_STM32F20XX is not set
++# CONFIG_STM32_STM32F30XX is not set
++CONFIG_STM32_STM32F40XX=y
++# CONFIG_STM32_DFU is not set
++
++#
++# STM32 Peripheral Support
++#
++CONFIG_STM32_ADC1=y
++# CONFIG_STM32_ADC2 is not set
++# CONFIG_STM32_ADC3 is not set
++CONFIG_STM32_BKPSRAM=y
++# CONFIG_STM32_CAN1 is not set
++# CONFIG_STM32_CAN2 is not set
++CONFIG_STM32_CCMDATARAM=y
++# CONFIG_STM32_CRC is not set
++# CONFIG_STM32_CRYP is not set
++CONFIG_STM32_DMA1=y
++CONFIG_STM32_DMA2=y
++# CONFIG_STM32_DAC1 is not set
++# CONFIG_STM32_DAC2 is not set
++# CONFIG_STM32_DCMI is not set
++# CONFIG_STM32_ETHMAC is not set
++# CONFIG_STM32_FSMC is not set
++# CONFIG_STM32_HASH is not set
++CONFIG_STM32_I2C1=y
++CONFIG_STM32_I2C2=n	//NavStik
++CONFIG_STM32_I2C3=y
++CONFIG_STM32_OTGFS=y
++# CONFIG_STM32_OTGHS is not set
++CONFIG_STM32_PWR=y
++# CONFIG_STM32_RNG is not set
++# CONFIG_STM32_SDIO is not set
++# CONFIG_STM32_SPI1 is not set	//NavStik
++CONFIG_STM32_SPI2=y             //NavStik  
++# CONFIG_STM32_SPI3 is not set  //NavStik
++CONFIG_STM32_SYSCFG=y
++CONFIG_STM32_TIM1=y  //NavStik
++CONFIG_STM32_TIM2=y  //NavStik
++CONFIG_STM32_TIM3=y  //NavStik
++# CONFIG_STM32_TIM4 is not set 
++CONFIG_STM32_TIM5=y
++CONFIG_STM32_TIM6=y
++CONFIG_STM32_TIM7=y
++CONFIG_STM32_TIM8=y  //NavStik
++CONFIG_STM32_TIM9=y
++CONFIG_STM32_TIM10=y
++CONFIG_STM32_TIM11=y
++CONFIG_STM32_TIM12=y
++CONFIG_STM32_TIM13=y
++CONFIG_STM32_TIM14=y
++CONFIG_STM32_USART1=y
++CONFIG_STM32_USART2=y
++# CONFIG_STM32_USART3 is not set
++# CONFIG_STM32_UART4 is not set
++CONFIG_STM32_UART5=y
++# CONFIG_STM32_USART6 is not set  //NavStik
++# CONFIG_STM32_IWDG is not set
++CONFIG_STM32_WWDG=y
++CONFIG_STM32_ADC=y
++CONFIG_STM32_SPI=y
++CONFIG_STM32_I2C=y
++
++#
++# Alternate Pin Mapping
++#
++CONFIG_STM32_FLASH_PREFETCH=y
++# CONFIG_STM32_JTAG_DISABLE is not set
++CONFIG_STM32_JTAG_FULL_ENABLE=y
++# CONFIG_STM32_JTAG_NOJNTRST_ENABLE is not set
++# CONFIG_STM32_JTAG_SW_ENABLE is not set
++CONFIG_STM32_DISABLE_IDLE_SLEEP_DURING_DEBUG=y
++# CONFIG_STM32_FORCEPOWER is not set
++# CONFIG_ARCH_BOARD_STM32_CUSTOM_CLOCKCONFIG is not set
++# CONFIG_STM32_CCMEXCLUDE is not set
++CONFIG_STM32_DMACAPABLE=y
++# CONFIG_STM32_TIM4_PWM is not set
++# CONFIG_STM32_TIM5_PWM is not set
++# CONFIG_STM32_TIM9_PWM is not set
++# CONFIG_STM32_TIM10_PWM is not set
++# CONFIG_STM32_TIM11_PWM is not set
++# CONFIG_STM32_TIM12_PWM is not set
++# CONFIG_STM32_TIM13_PWM is not set
++# CONFIG_STM32_TIM14_PWM is not set
++# CONFIG_STM32_TIM4_ADC is not set
++# CONFIG_STM32_TIM5_ADC is not set
++CONFIG_STM32_USART=y
++
++#
++# U[S]ART Configuration
++#
++# CONFIG_USART1_RS485 is not set
++# CONFIG_USART1_RXDMA is not set
++# CONFIG_USART2_RS485 is not set
++CONFIG_USART2_RXDMA=y
++# CONFIG_USART3_RXDMA is not set
++# CONFIG_UART4_RXDMA is not set
++# CONFIG_UART5_RS485 is not set
++CONFIG_UART5_RXDMA=y
++# CONFIG_USART6_RS485 is not set
++CONFIG_USART6_RXDMA=y
++# CONFIG_USART7_RXDMA is not set
++# CONFIG_USART8_RXDMA is not set
++CONFIG_SERIAL_DISABLE_REORDERING=y
++CONFIG_STM32_USART_SINGLEWIRE=y
++
++#
++# SPI Configuration
++#
++# CONFIG_STM32_SPI_INTERRUPTS is not set
++# CONFIG_STM32_SPI_DMA is not set
++
++#
++# I2C Configuration
++#
++# CONFIG_STM32_I2C_DYNTIMEO is not set
++CONFIG_STM32_I2CTIMEOSEC=0
++CONFIG_STM32_I2CTIMEOMS=10	//NavStik
++CONFIG_STM32_I2CTIMEOTICKS=500	//NavStik
++# CONFIG_STM32_I2C_DUTY16_9 is not set
++
++#
++# USB Host Configuration
++#
++
++#
++# USB Device Configuration
++#
++
++#
++# External Memory Configuration
++#
++
++#
++# Architecture Options
++#
++# CONFIG_ARCH_NOINTC is not set
++# CONFIG_ARCH_VECNOTIRQ is not set
++CONFIG_ARCH_DMA=y
++# CONFIG_ARCH_IRQPRIO is not set	//NavStik && P
++# CONFIG_CUSTOM_STACK is not set
++# CONFIG_ADDRENV is not set
++CONFIG_ARCH_HAVE_VFORK=y
++CONFIG_ARCH_STACKDUMP=y
++# CONFIG_ENDIAN_BIG is not set
++# CONFIG_ARCH_HAVE_RAMFUNCS is not set
++CONFIG_ARCH_HAVE_RAMVECTORS=y
++# CONFIG_ARCH_RAMVECTORS is not set
++
++#
++# Board Settings
++#
++CONFIG_BOARD_LOOPSPERMSEC=16717
++# CONFIG_ARCH_CALIBRATION is not set
++CONFIG_DRAM_START=0x20000000
++CONFIG_DRAM_SIZE=196608
++CONFIG_ARCH_HAVE_INTERRUPTSTACK=y
++CONFIG_ARCH_INTERRUPTSTACK=4096
++
++#
++# Boot options
++#
++# CONFIG_BOOT_RUNFROMEXTSRAM is not set
++CONFIG_BOOT_RUNFROMFLASH=y
++# CONFIG_BOOT_RUNFROMISRAM is not set
++# CONFIG_BOOT_RUNFROMSDRAM is not set
++# CONFIG_BOOT_COPYTORAM is not set
++
++#
++# Board Selection
++#
++#CONFIG_ARCH_BOARD_NAVSTIK_V1=y         //NavStik
++#CONFIG_ARCH_BOARD_CUSTOM is not set  //NavStik
++#CONFIG_ARCH_BOARD="navstik-v1"         //NavStik
++CONFIG_ARCH_BOARD_CUSTOM=y
++CONFIG_ARCH_BOARD=""
++
++#
++# Common Board Options
++#
++CONFIG_NSH_MMCSDMINOR=0
++CONFIG_NSH_MMCSDSLOTNO=0
++CONFIG_NSH_MMCSDSPIPORTNO=2	//NavStik
++
++#
++# Board-Specific Options
++#
++
++#
++# RTOS Features
++#
++# CONFIG_BOARD_INITIALIZE is not set
++CONFIG_MSEC_PER_TICK=1
++CONFIG_RR_INTERVAL=0
++CONFIG_SCHED_INSTRUMENTATION=y
++CONFIG_TASK_NAME_SIZE=24
++# CONFIG_SCHED_HAVE_PARENT is not set
++# CONFIG_JULIAN_TIME is not set
++CONFIG_START_YEAR=1970
++CONFIG_START_MONTH=1
++CONFIG_START_DAY=1
++CONFIG_DEV_CONSOLE=y
++# CONFIG_MUTEX_TYPES is not set
++CONFIG_PRIORITY_INHERITANCE=y
++CONFIG_SEM_PREALLOCHOLDERS=0
++CONFIG_SEM_NNESTPRIO=8
++# CONFIG_FDCLONE_DISABLE is not set
++CONFIG_FDCLONE_STDIO=y
++CONFIG_SDCLONE_DISABLE=y
++CONFIG_SCHED_WAITPID=y
++# CONFIG_SCHED_STARTHOOK is not set
++CONFIG_SCHED_ATEXIT=y
++CONFIG_SCHED_ATEXIT_MAX=1
++# CONFIG_SCHED_ONEXIT is not set
++CONFIG_USER_ENTRYPOINT="nsh_main"
++CONFIG_DISABLE_OS_API=y
++# CONFIG_DISABLE_CLOCK is not set
++# CONFIG_DISABLE_POSIX_TIMERS is not set
++# CONFIG_DISABLE_PTHREAD is not set
++# CONFIG_DISABLE_SIGNALS is not set
++# CONFIG_DISABLE_MQUEUE is not set
++# CONFIG_DISABLE_ENVIRON is not set
++
++#
++# Signal Numbers
++#
++CONFIG_SIG_SIGUSR1=1
++CONFIG_SIG_SIGUSR2=2
++CONFIG_SIG_SIGALARM=3
++CONFIG_SIG_SIGCONDTIMEDOUT=16
++CONFIG_SIG_SIGWORK=4
++
++#
++# Sizes of configurable things (0 disables)
++#
++CONFIG_MAX_TASKS=32
++CONFIG_MAX_TASK_ARGS=10
++CONFIG_NPTHREAD_KEYS=4
++CONFIG_NFILE_DESCRIPTORS=38	//P
++CONFIG_NFILE_STREAMS=8
++CONFIG_NAME_MAX=32
++CONFIG_PREALLOC_MQ_MSGS=4
++CONFIG_MQ_MAXMSGSIZE=32
++CONFIG_MAX_WDOGPARMS=2
++CONFIG_PREALLOC_WDOGS=50
++CONFIG_PREALLOC_TIMERS=50
++
++#
++# Stack and heap information
++#
++CONFIG_IDLETHREAD_STACKSIZE=3500	//P
++CONFIG_USERMAIN_STACKSIZE=3000	//P
++CONFIG_PTHREAD_STACK_MIN=512
++CONFIG_PTHREAD_STACK_DEFAULT=2048
++
++#
++# Device Drivers
++#
++# CONFIG_DISABLE_POLL is not set
++CONFIG_DEV_NULL=y
++# CONFIG_DEV_ZERO is not set
++# CONFIG_LOOP is not set
++# CONFIG_RAMDISK is not set
++# CONFIG_CAN is not set
++# CONFIG_PWM is not set
++NAVSTIK_CONFIG_PWMIN=y  //NAVSTIK
++CONFIG_I2C=y
++# CONFIG_I2C_SLAVE is not set
++CONFIG_I2C_TRANSFER=y
++# CONFIG_I2C_WRITEREAD is not set
++# CONFIG_I2C_POLLED is not set
++# CONFIG_I2C_TRACE is not set
++CONFIG_ARCH_HAVE_I2CRESET=y
++CONFIG_I2C_RESET=y
++CONFIG_SPI=y
++# CONFIG_SPI_OWNBUS is not set
++CONFIG_SPI_EXCHANGE=y
++# CONFIG_SPI_CMDDATA is not set
++# CONFIG_RTC is not set
++CONFIG_WATCHDOG=y
++# CONFIG_ANALOG is not set
++# CONFIG_AUDIO_DEVICES is not set
++# CONFIG_BCH is not set
++# CONFIG_INPUT is not set
++# CONFIG_LCD is not set
++CONFIG_MMCSD=y
++CONFIG_MMCSD_NSLOTS=1
++# CONFIG_MMCSD_READONLY is not set
++# CONFIG_MMCSD_MULTIBLOCK_DISABLE is not set
++# CONFIG_MMCSD_MMCSUPPORT is not set
++# CONFIG_MMCSD_HAVECARDDETECT is not set
++CONFIG_MMCSD_SPI=y
++CONFIG_MMCSD_SPICLOCK=24000000
++# CONFIG_MMCSD_SDIO is not set
++# CONFIG_MTD is not set	//NavStik
++CONFIG_PIPES=y
++# CONFIG_PM is not set
++# CONFIG_POWER is not set
++# CONFIG_SENSORS is not set
++CONFIG_SERIAL=y
++# CONFIG_DEV_LOWCONSOLE is not set
++CONFIG_SERIAL_REMOVABLE=y
++# CONFIG_16550_UART is not set
++CONFIG_ARCH_HAVE_UART5=y
++CONFIG_ARCH_HAVE_USART1=y
++CONFIG_ARCH_HAVE_USART2=y
++CONFIG_ARCH_HAVE_USART6=y
++CONFIG_MCU_SERIAL=y
++CONFIG_STANDARD_SERIAL=y
++CONFIG_SERIAL_NPOLLWAITERS=2
++CONFIG_USART1_SERIAL_CONSOLE=y
++# CONFIG_USART2_SERIAL_CONSOLE is not set
++# CONFIG_UART5_SERIAL_CONSOLE is not set
++# CONFIG_USART6_SERIAL_CONSOLE is not set
++# CONFIG_NO_SERIAL_CONSOLE is not set
++
++#
++# MTD Configuration
++#
++CONFIG_MTD_PARTITION=y
++CONFIG_MTD_BYTE_WRITE=y
++
++#
++# MTD Device Drivers
++#
++# CONFIG_RAMMTD is not set
++# CONFIG_MTD_AT24XX is not set
++# CONFIG_MTD_AT45DB is not set
++# CONFIG_MTD_M25P is not set
++# CONFIG_MTD_SMART is not set
++# CONFIG_MTD_RAMTRON is not set
++# CONFIG_MTD_SST25 is not set
++# CONFIG_MTD_SST39FV is not set
++# CONFIG_MTD_W25 is not set
++
++#
++# USART1 Configuration
++#
++CONFIG_USART1_RXBUFSIZE=512	//NavStik
++CONFIG_USART1_TXBUFSIZE=512	//NavStik
++CONFIG_USART1_BAUD=115200	//NavStik
++CONFIG_USART1_BITS=8
++CONFIG_USART1_PARITY=0
++CONFIG_USART1_2STOP=0
++# CONFIG_USART1_IFLOWCONTROL is not set
++# CONFIG_USART1_OFLOWCONTROL is not set
++
++#
++# USART2 Configuration
++#
++CONFIG_USART2_RXBUFSIZE=512
++CONFIG_USART2_TXBUFSIZE=512
++CONFIG_USART2_BAUD=57600
++CONFIG_USART2_BITS=8
++CONFIG_USART2_PARITY=0
++CONFIG_USART2_2STOP=0
++# CONFIG_USART2_IFLOWCONTROL is not set
++# CONFIG_USART2_OFLOWCONTROL is not set
++
++#
++# UART5 Configuration
++#
++CONFIG_UART5_RXBUFSIZE=512	//NavStik
++CONFIG_UART5_TXBUFSIZE=512	//NavStik
++CONFIG_UART5_BAUD=57600
++CONFIG_UART5_BITS=8
++CONFIG_UART5_PARITY=0
++CONFIG_UART5_2STOP=0
++# CONFIG_UART5_IFLOWCONTROL is not set
++# CONFIG_UART5_OFLOWCONTROL is not set
++
++#
++# USART6 Configuration
++#
++CONFIG_USART6_RXBUFSIZE=512	//NavStik
++CONFIG_USART6_TXBUFSIZE=512	//NavStik
++CONFIG_USART6_BAUD=57600
++CONFIG_USART6_BITS=8
++CONFIG_USART6_PARITY=0
++CONFIG_USART6_2STOP=0
++# CONFIG_USART6_IFLOWCONTROL is not set
++# CONFIG_USART6_OFLOWCONTROL is not set
++CONFIG_SERIAL_IFLOWCONTROL=y
++CONFIG_SERIAL_OFLOWCONTROL=y
++CONFIG_USBDEV=y
++
++#
++# USB Device Controller Driver Options
++#
++# CONFIG_USBDEV_ISOCHRONOUS is not set
++# CONFIG_USBDEV_DUALSPEED is not set
++# CONFIG_USBDEV_SELFPOWERED is not set
++CONFIG_USBDEV_BUSPOWERED=y
++CONFIG_USBDEV_MAXPOWER=500
++# CONFIG_USBDEV_REMOTEWAKEUP is not set
++# CONFIG_USBDEV_DMA is not set
++# CONFIG_USBDEV_TRACE is not set
++
++#
++# USB Device Class Driver Options
++#
++# CONFIG_USBDEV_COMPOSITE is not set
++# CONFIG_PL2303 is not set
++CONFIG_CDCACM=y
++CONFIG_CDCACM_CONSOLE=n
++CONFIG_CDCACM_EP0MAXPACKET=64
++CONFIG_CDCACM_EPINTIN=1
++CONFIG_CDCACM_EPINTIN_FSSIZE=64
++CONFIG_CDCACM_EPINTIN_HSSIZE=64
++CONFIG_CDCACM_EPBULKOUT=3
++CONFIG_CDCACM_EPBULKOUT_FSSIZE=64
++CONFIG_CDCACM_EPBULKOUT_HSSIZE=512
++CONFIG_CDCACM_EPBULKIN=2
++CONFIG_CDCACM_EPBULKIN_FSSIZE=64
++CONFIG_CDCACM_EPBULKIN_HSSIZE=512
++CONFIG_CDCACM_NWRREQS=4
++CONFIG_CDCACM_NRDREQS=4
++CONFIG_CDCACM_BULKIN_REQLEN=96
++CONFIG_CDCACM_RXBUFSIZE=512
++CONFIG_CDCACM_TXBUFSIZE=2048	//P
++CONFIG_CDCACM_VENDORID=0x26ac
++CONFIG_CDCACM_PRODUCTID=0x0010
++CONFIG_CDCACM_VENDORSTR="NAVSTIK"	//NavStik
++CONFIG_CDCACM_PRODUCTSTR="NAVSTIK"	//NavStik
++# CONFIG_USBMSC is not set
++# CONFIG_USBHOST is not set
++# CONFIG_WIRELESS is not set
++
++#
++# System Logging Device Options
++#
++
++#
++# System Logging
++#
++# CONFIG_RAMLOG is not set
++
++#
++# Networking Support
++#
++# CONFIG_NET is not set
++
++#
++# File Systems
++#
++
++#
++# File system configuration
++#
++# CONFIG_DISABLE_MOUNTPOINT is not set
++# CONFIG_FS_RAMMAP is not set
++CONFIG_FS_FAT=y
++CONFIG_FAT_LCNAMES=y
++CONFIG_FAT_LFN=y
++CONFIG_FAT_MAXFNAME=32
++CONFIG_FS_FATTIME=y
++# CONFIG_FAT_DMAMEMORY is not set
++CONFIG_FS_NXFFS=y
++CONFIG_NXFFS_PREALLOCATED=y
++CONFIG_NXFFS_ERASEDSTATE=0xff
++CONFIG_NXFFS_PACKTHRESHOLD=32
++CONFIG_NXFFS_MAXNAMLEN=32
++CONFIG_NXFFS_TAILTHRESHOLD=2048
++CONFIG_FS_ROMFS=y
++# CONFIG_FS_SMARTFS is not set
++CONFIG_FS_BINFS=y
++
++#
++# System Logging
++#
++# CONFIG_SYSLOG_ENABLE is not set
++CONFIG_SYSLOG=y
++CONFIG_SYSLOG_CHAR=y
++CONFIG_SYSLOG_DEVPATH="/dev/ttyS0"
++
++#
++# Graphics Support
++#
++# CONFIG_NX is not set
++
++#
++# Memory Management
++#
++# CONFIG_MM_MULTIHEAP is not set
++# CONFIG_MM_SMALL is not set
++CONFIG_MM_REGIONS=2
++CONFIG_GRAN=y
++CONFIG_GRAN_SINGLE=y
++CONFIG_GRAN_INTR=y
++
++#
++# Audio Support
++#
++# CONFIG_AUDIO is not set
++
++#
++# Binary Formats
++#
++# CONFIG_BINFMT_DISABLE is not set
++# CONFIG_BINFMT_EXEPATH is not set
++# CONFIG_NXFLAT is not set
++# CONFIG_ELF is not set
++CONFIG_BUILTIN=y
++# CONFIG_PIC is not set
++# CONFIG_SYMTAB_ORDEREDBYNAME is not set
++
++#
++# Library Routines
++#
++
++#
++# Standard C Library Options
++#
++CONFIG_STDIO_BUFFER_SIZE=180	//P
++CONFIG_STDIO_LINEBUFFER=y
++CONFIG_NUNGET_CHARS=2
++CONFIG_LIB_HOMEDIR="/"
++# CONFIG_NOPRINTF_FIELDWIDTH is not set
++CONFIG_LIBC_FLOATINGPOINT=y
++CONFIG_LIB_RAND_ORDER=1
++# CONFIG_EOL_IS_CR is not set
++# CONFIG_EOL_IS_LF is not set
++# CONFIG_EOL_IS_BOTH_CRLF is not set
++CONFIG_EOL_IS_EITHER_CRLF=y
++# CONFIG_LIBC_EXECFUNCS is not set
++CONFIG_POSIX_SPAWN_PROXY_STACKSIZE=1024
++CONFIG_TASK_SPAWN_DEFAULT_STACKSIZE=2048
++CONFIG_LIBC_STRERROR=y
++# CONFIG_LIBC_STRERROR_SHORT is not set
++# CONFIG_LIBC_PERROR_STDOUT is not set
++CONFIG_ARCH_LOWPUTC=y
++CONFIG_LIB_SENDFILE_BUFSIZE=512
++# CONFIG_ARCH_ROMGETC is not set
++CONFIG_ARCH_OPTIMIZED_FUNCTIONS=y
++CONFIG_ARCH_MEMCPY=y
++# CONFIG_ARCH_MEMCMP is not set
++# CONFIG_ARCH_MEMMOVE is not set
++# CONFIG_ARCH_MEMSET is not set
++# CONFIG_MEMSET_OPTSPEED is not set
++# CONFIG_ARCH_STRCHR is not set
++# CONFIG_ARCH_STRCMP is not set
++# CONFIG_ARCH_STRCPY is not set
++# CONFIG_ARCH_STRNCPY is not set
++# CONFIG_ARCH_STRLEN is not set
++# CONFIG_ARCH_STRNLEN is not set
++# CONFIG_ARCH_BZERO is not set
++
++#
++# Non-standard Library Support
++#
++CONFIG_SCHED_WORKQUEUE=y
++CONFIG_SCHED_HPWORK=y
++CONFIG_SCHED_WORKPRIORITY=192
++CONFIG_SCHED_WORKPERIOD=5000
++CONFIG_SCHED_WORKSTACKSIZE=2048	//P
++CONFIG_SCHED_LPWORK=y
++CONFIG_SCHED_LPWORKPRIORITY=50
++CONFIG_SCHED_LPWORKPERIOD=50000
++CONFIG_SCHED_LPWORKSTACKSIZE=2048	//P
++# CONFIG_LIB_KBDCODEC is not set
++# CONFIG_LIB_SLCDCODEC is not set
++
++#
++# Basic CXX Support
++#
++CONFIG_C99_BOOL8=y
++CONFIG_HAVE_CXX=y
++CONFIG_HAVE_CXXINITIALIZE=y
++# CONFIG_CXX_NEWLONG is not set
++
++#
++# uClibc++ Standard C++ Library
++#
++# CONFIG_UCLIBCXX is not set
++
++#
++# Application Configuration
++#
++
++#
++# Built-In Applications
++#
++CONFIG_BUILTIN_PROXY_STACKSIZE=1024
++
++#
++# Examples
++#
++# CONFIG_EXAMPLES_BUTTONS is not set
++# CONFIG_EXAMPLES_CAN is not set
++CONFIG_EXAMPLES_CDCACM=y
++# CONFIG_EXAMPLES_COMPOSITE is not set
++# CONFIG_EXAMPLES_CXXTEST is not set
++# CONFIG_EXAMPLES_DHCPD is not set
++# CONFIG_EXAMPLES_ELF is not set
++# CONFIG_EXAMPLES_FTPC is not set
++# CONFIG_EXAMPLES_FTPD is not set
++# CONFIG_EXAMPLES_HELLO is not set
++# CONFIG_EXAMPLES_HELLOXX is not set
++# CONFIG_EXAMPLES_JSON is not set
++# CONFIG_EXAMPLES_HIDKBD is not set
++# CONFIG_EXAMPLES_KEYPADTEST is not set
++# CONFIG_EXAMPLES_IGMP is not set
++# CONFIG_EXAMPLES_LCDRW is not set
++# CONFIG_EXAMPLES_MM is not set
++# CONFIG_EXAMPLES_MODBUS is not set
++CONFIG_EXAMPLES_MOUNT=y
++# CONFIG_EXAMPLES_NRF24L01TERM is not set
++CONFIG_EXAMPLES_NSH=y
++# CONFIG_EXAMPLES_NULL is not set
++# CONFIG_EXAMPLES_NX is not set
++# CONFIG_EXAMPLES_NXCONSOLE is not set
++# CONFIG_EXAMPLES_NXFFS is not set
++# CONFIG_EXAMPLES_NXFLAT is not set
++# CONFIG_EXAMPLES_NXHELLO is not set
++# CONFIG_EXAMPLES_NXIMAGE is not set
++# CONFIG_EXAMPLES_NXLINES is not set
++# CONFIG_EXAMPLES_NXTEXT is not set
++# CONFIG_EXAMPLES_OSTEST is not set
++# CONFIG_EXAMPLES_PASHELLO is not set
++# CONFIG_EXAMPLES_PIPE is not set
++# CONFIG_EXAMPLES_POSIXSPAWN is not set
++# CONFIG_EXAMPLES_QENCODER is not set
++# CONFIG_EXAMPLES_RGMP is not set
++# CONFIG_EXAMPLES_ROMFS is not set
++# CONFIG_EXAMPLES_SENDMAIL is not set
++# CONFIG_EXAMPLES_SERLOOP is not set
++# CONFIG_EXAMPLES_SLCD is not set
++# CONFIG_EXAMPLES_SMART_TEST is not set
++# CONFIG_EXAMPLES_SMART is not set
++# CONFIG_EXAMPLES_TCPECHO is not set
++# CONFIG_EXAMPLES_TELNETD is not set
++# CONFIG_EXAMPLES_THTTPD is not set
++# CONFIG_EXAMPLES_TIFF is not set
++# CONFIG_EXAMPLES_TOUCHSCREEN is not set
++# CONFIG_EXAMPLES_UDP is not set
++# CONFIG_EXAMPLES_UIP is not set
++# CONFIG_EXAMPLES_USBSERIAL is not set
++# CONFIG_EXAMPLES_USBMSC is not set
++# CONFIG_EXAMPLES_USBTERM is not set
++# CONFIG_EXAMPLES_WATCHDOG is not set
++
++#
++# Graphics Support
++#
++# CONFIG_TIFF is not set
++
++#
++# Interpreters
++#
++# CONFIG_INTERPRETERS_FICL is not set
++# CONFIG_INTERPRETERS_PCODE is not set
++
++#
++# Network Utilities
++#
++
++#
++# Networking Utilities
++#
++# CONFIG_NETUTILS_CODECS is not set
++# CONFIG_NETUTILS_DHCPC is not set
++# CONFIG_NETUTILS_DHCPD is not set
++# CONFIG_NETUTILS_FTPC is not set
++# CONFIG_NETUTILS_FTPD is not set
++# CONFIG_NETUTILS_JSON is not set
++# CONFIG_NETUTILS_RESOLV is not set
++# CONFIG_NETUTILS_SMTP is not set
++# CONFIG_NETUTILS_TELNETD is not set
++# CONFIG_NETUTILS_TFTPC is not set
++# CONFIG_NETUTILS_THTTPD is not set
++# CONFIG_NETUTILS_UIPLIB is not set
++# CONFIG_NETUTILS_WEBCLIENT is not set
++
++#
++# FreeModBus
++#
++# CONFIG_MODBUS is not set
++
++#
++# NSH Library
++#
++CONFIG_NSH_LIBRARY=y
++CONFIG_NSH_BUILTIN_APPS=y
++
++#
++# Disable Individual commands
++#
++# CONFIG_NSH_DISABLE_CAT is not set
++# CONFIG_NSH_DISABLE_CD is not set
++# CONFIG_NSH_DISABLE_CP is not set
++# CONFIG_NSH_DISABLE_DD is not set
++# CONFIG_NSH_DISABLE_ECHO is not set
++# CONFIG_NSH_DISABLE_EXEC is not set
++# CONFIG_NSH_DISABLE_EXIT is not set
++# CONFIG_NSH_DISABLE_FREE is not set
++# CONFIG_NSH_DISABLE_GET is not set
++# CONFIG_NSH_DISABLE_HELP is not set
++# CONFIG_NSH_DISABLE_HEXDUMP is not set
++# CONFIG_NSH_DISABLE_IFCONFIG is not set
++# CONFIG_NSH_DISABLE_KILL is not set
++# CONFIG_NSH_DISABLE_LOSETUP is not set
++# CONFIG_NSH_DISABLE_LS is not set
++# CONFIG_NSH_DISABLE_MB is not set
++# CONFIG_NSH_DISABLE_MKDIR is not set
++# CONFIG_NSH_DISABLE_MKFATFS is not set
++# CONFIG_NSH_DISABLE_MKFIFO is not set
++# CONFIG_NSH_DISABLE_MKRD is not set
++# CONFIG_NSH_DISABLE_MH is not set
++# CONFIG_NSH_DISABLE_MOUNT is not set
++# CONFIG_NSH_DISABLE_MW is not set
++# CONFIG_NSH_DISABLE_NSFMOUNT is not set
++# CONFIG_NSH_DISABLE_PS is not set
++# CONFIG_NSH_DISABLE_PING is not set
++# CONFIG_NSH_DISABLE_PUT is not set
++# CONFIG_NSH_DISABLE_PWD is not set
++# CONFIG_NSH_DISABLE_RM is not set
++# CONFIG_NSH_DISABLE_RMDIR is not set
++# CONFIG_NSH_DISABLE_SET is not set
++# CONFIG_NSH_DISABLE_SH is not set
++# CONFIG_NSH_DISABLE_SLEEP is not set
++# CONFIG_NSH_DISABLE_TEST is not set
++# CONFIG_NSH_DISABLE_UMOUNT is not set
++# CONFIG_NSH_DISABLE_UNSET is not set
++# CONFIG_NSH_DISABLE_USLEEP is not set
++# CONFIG_NSH_DISABLE_WGET is not set
++# CONFIG_NSH_DISABLE_XD is not set
++
++#
++# Configure Command Options
++#
++# CONFIG_NSH_CMDOPT_DF_H is not set
++CONFIG_NSH_CODECS_BUFSIZE=128
++CONFIG_NSH_FILEIOSIZE=512
++CONFIG_NSH_STRERROR=y
++CONFIG_NSH_LINELEN=128
++CONFIG_NSH_MAXARGUMENTS=12
++CONFIG_NSH_NESTDEPTH=8
++# CONFIG_NSH_DISABLESCRIPT is not set
++# CONFIG_NSH_DISABLEBG is not set
++CONFIG_NSH_ROMFSETC=y
++# CONFIG_NSH_ROMFSRC is not set
++CONFIG_NSH_ROMFSMOUNTPT="/etc"
++CONFIG_NSH_INITSCRIPT="init.d/rcS"
++CONFIG_NSH_ROMFSDEVNO=0
++CONFIG_NSH_ROMFSSECTSIZE=128
++CONFIG_NSH_ARCHROMFS=y
++CONFIG_NSH_FATDEVNO=1
++CONFIG_NSH_FATSECTSIZE=512
++CONFIG_NSH_FATNSECTORS=1024
++CONFIG_NSH_FATMOUNTPT="/tmp"
++CONFIG_NSH_CONSOLE=y
++# CONFIG_NSH_USBCONSOLE is not set
++
++#
++# USB Trace Support
++#
++# CONFIG_NSH_CONDEV is not set
++CONFIG_NSH_ARCHINIT=y
++
++#
++# NxWidgets/NxWM
++#
++
++#
++# System NSH Add-Ons
++#
++
++#
++# Custom Free Memory Command
++#
++# CONFIG_SYSTEM_FREE is not set
++
++#
++# I2C tool
++#
++# CONFIG_SYSTEM_I2CTOOL is not set
++
++#
++# FLASH Program Installation
++#
++# CONFIG_SYSTEM_INSTALL is not set
++
++#
++# FLASH Erase-all Command
++#
++
++#
++# readline()
++#
++CONFIG_SYSTEM_READLINE=y
++CONFIG_READLINE_ECHO=y
++
++#
++# Power Off
++#
++# CONFIG_SYSTEM_POWEROFF is not set
++
++#
++# RAMTRON
++#
++# CONFIG_SYSTEM_RAMTRON is not set
++
++#
++# SD Card
++#
++# CONFIG_SYSTEM_SDCARD is not set
++
++#
++# Sysinfo
++#
++CONFIG_SYSTEM_SYSINFO=y
++
++#
++# USB Monitor
++#
+--- Firmware/nuttx-configs/navstik-v1/nsh/Make.defs	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/nuttx-configs/navstik-v1/nsh/Make.defs	2015-04-07 14:57:40.254235563 +0530
+@@ -0,0 +1,179 @@
++############################################################################
++# configs/navstik-v1/nsh/Make.defs
++#
++#   Copyright (C) 2011 Gregory Nutt. All rights reserved.
++#   Author: Gregory Nutt <gnutt@nuttx.org>
++#
++# Redistribution and use in source and binary forms, with or without
++# modification, are permitted provided that the following conditions
++# are met:
++#
++# 1. Redistributions of source code must retain the above copyright
++#    notice, this list of conditions and the following disclaimer.
++# 2. Redistributions in binary form must reproduce the above copyright
++#    notice, this list of conditions and the following disclaimer in
++#    the documentation and/or other materials provided with the
++#    distribution.
++# 3. Neither the name NuttX nor the names of its contributors may be
++#    used to endorse or promote products derived from this software
++#    without specific prior written permission.
++#
++# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++# POSSIBILITY OF SUCH DAMAGE.
++#
++############################################################################
++
++include ${TOPDIR}/.config
++include ${TOPDIR}/tools/Config.mk
++
++#
++# We only support building with the ARM bare-metal toolchain from
++# https://launchpad.net/gcc-arm-embedded on Windows, Linux or Mac OS.
++#
++CONFIG_ARMV7M_TOOLCHAIN	:= GNU_EABI
++
++include ${TOPDIR}/arch/arm/src/armv7-m/Toolchain.defs
++
++CC			 = $(CROSSDEV)gcc
++CXX			 = $(CROSSDEV)g++
++CPP			 = $(CROSSDEV)gcc -E
++LD			 = $(CROSSDEV)ld
++AR			 = $(CROSSDEV)ar rcs
++NM			 = $(CROSSDEV)nm
++OBJCOPY			 = $(CROSSDEV)objcopy
++OBJDUMP			 = $(CROSSDEV)objdump
++
++MAXOPTIMIZATION		 = -O3
++ARCHCPUFLAGS		 = -mcpu=cortex-m4 \
++			   -mthumb \
++			   -march=armv7e-m \
++			   -mfpu=fpv4-sp-d16 \
++			   -mfloat-abi=hard
++
++
++# enable precise stack overflow tracking
++INSTRUMENTATIONDEFINES	 = -finstrument-functions \
++			   -ffixed-r10
++
++# pull in *just* libm from the toolchain ... this is grody
++LIBM			 = "${shell $(CC) $(ARCHCPUFLAGS) -print-file-name=libm.a}"
++EXTRA_LIBS		+= $(LIBM)
++
++# use our linker script
++LDSCRIPT		 = ld.script
++
++ifeq ($(WINTOOL),y)
++  # Windows-native toolchains
++  DIRLINK		 = $(TOPDIR)/tools/copydir.sh
++  DIRUNLINK		 = $(TOPDIR)/tools/unlink.sh
++  MKDEP			 = $(TOPDIR)/tools/mknulldeps.sh
++  ARCHINCLUDES		 = -I. -isystem "${shell cygpath -w $(TOPDIR)/include}"
++  ARCHXXINCLUDES	 = -I. -isystem "${shell cygpath -w $(TOPDIR)/include}" -isystem "${shell cygpath -w $(TOPDIR)/include/cxx}"
++  ARCHSCRIPT		 = -T "${shell cygpath -w $(TOPDIR)/configs/$(CONFIG_ARCH_BOARD)/scripts/$(LDSCRIPT)}"
++else
++  ifeq ($(PX4_WINTOOL),y)
++    # Windows-native toolchains (MSYS)
++    DIRLINK		 = $(TOPDIR)/tools/copydir.sh
++    DIRUNLINK		 = $(TOPDIR)/tools/unlink.sh
++    MKDEP		 = $(TOPDIR)/tools/mknulldeps.sh
++    ARCHINCLUDES	 = -I. -isystem $(TOPDIR)/include
++    ARCHXXINCLUDES	 = -I. -isystem $(TOPDIR)/include -isystem $(TOPDIR)/include/cxx
++    ARCHSCRIPT		 = -T$(TOPDIR)/configs/$(CONFIG_ARCH_BOARD)/scripts/$(LDSCRIPT)
++  else
++    # Linux/Cygwin-native toolchain 
++    MKDEP		 = $(TOPDIR)/tools/mkdeps.sh
++    ARCHINCLUDES	 = -I. -isystem $(TOPDIR)/include
++    ARCHXXINCLUDES	 = -I. -isystem $(TOPDIR)/include -isystem $(TOPDIR)/include/cxx
++    ARCHSCRIPT		 = -T$(TOPDIR)/configs/$(CONFIG_ARCH_BOARD)/scripts/$(LDSCRIPT)
++  endif
++endif
++
++# tool versions
++ARCHCCVERSION		 = ${shell $(CC) -v 2>&1 | sed -n '/^gcc version/p' | sed -e 's/^gcc version \([0-9\.]\)/\1/g' -e 's/[-\ ].*//g' -e '1q'}
++ARCHCCMAJOR		 = ${shell echo $(ARCHCCVERSION) | cut -d'.' -f1}
++
++# optimisation flags
++ARCHOPTIMIZATION	 = $(MAXOPTIMIZATION) \
++			   -fno-strict-aliasing \
++			   -fno-strength-reduce \
++			   -fomit-frame-pointer \
++   			   -funsafe-math-optimizations \
++   			   -fno-builtin-printf \
++   			   -ffunction-sections \
++   			   -fdata-sections
++
++ifeq ("${CONFIG_DEBUG_SYMBOLS}","y")
++ARCHOPTIMIZATION	+= -g
++endif
++
++ARCHCFLAGS		 = -std=gnu99
++ARCHCXXFLAGS		 = -fno-exceptions -fno-rtti -std=gnu++0x
++ARCHWARNINGS		 = -Wall \
++			   -Wextra \
++			   -Wdouble-promotion \
++			   -Wshadow \
++			   -Wfloat-equal \
++			   -Wframe-larger-than=1024 \
++			   -Wpointer-arith \
++			   -Wlogical-op \
++			   -Wmissing-declarations \
++			   -Wpacked \
++			   -Wno-unused-parameter
++#   -Wcast-qual  - generates spurious noreturn attribute warnings, try again later
++#   -Wconversion - would be nice, but too many "risky-but-safe" conversions in the code
++#   -Wcast-align - would help catch bad casts in some cases, but generates too many false positives
++
++ARCHCWARNINGS		 = $(ARCHWARNINGS) \
++			   -Wbad-function-cast \
++			   -Wstrict-prototypes \
++			   -Wold-style-declaration \
++			   -Wmissing-parameter-type \
++			   -Wmissing-prototypes \
++			   -Wnested-externs \
++			   -Wunsuffixed-float-constants
++ARCHWARNINGSXX		 = $(ARCHWARNINGS) \
++			   -Wno-psabi
++ARCHDEFINES		 =
++ARCHPICFLAGS		 = -fpic -msingle-pic-base -mpic-register=r10
++
++# this seems to be the only way to add linker flags
++EXTRA_LIBS		+= --warn-common \
++			   --gc-sections
++
++CFLAGS			 = $(ARCHCFLAGS) $(ARCHCWARNINGS) $(ARCHOPTIMIZATION) $(ARCHCPUFLAGS) $(ARCHINCLUDES) $(INSTRUMENTATIONDEFINES) $(ARCHDEFINES) $(EXTRADEFINES) -pipe -fno-common
++CPICFLAGS		 = $(ARCHPICFLAGS) $(CFLAGS)
++CXXFLAGS		 = $(ARCHCXXFLAGS) $(ARCHWARNINGSXX) $(ARCHOPTIMIZATION) $(ARCHCPUFLAGS) $(ARCHXXINCLUDES) $(INSTRUMENTATIONDEFINES) $(ARCHDEFINES) $(EXTRADEFINES) -pipe
++CXXPICFLAGS		 = $(ARCHPICFLAGS) $(CXXFLAGS)
++CPPFLAGS		 = $(ARCHINCLUDES) $(INSTRUMENTATIONDEFINES) $(ARCHDEFINES) $(EXTRADEFINES)
++AFLAGS			 = $(CFLAGS) -D__ASSEMBLY__
++
++NXFLATLDFLAGS1		 = -r -d -warn-common
++NXFLATLDFLAGS2		 = $(NXFLATLDFLAGS1) -T$(TOPDIR)/binfmt/libnxflat/gnu-nxflat.ld -no-check-sections
++LDNXFLATFLAGS		 = -e main -s 2048
++
++OBJEXT			 = .o
++LIBEXT			 = .a
++EXEEXT			 =
++
++
++# produce partially-linked $1 from files in $2
++define PRELINK
++	@echo "PRELINK: $1"
++	$(Q) $(LD) -Ur -o $1 $2 && $(OBJCOPY) --localize-hidden $1
++endef
++
++HOSTCC			 = gcc
++HOSTINCLUDES		 = -I.
++HOSTCFLAGS		 = -Wall -Wstrict-prototypes -Wshadow -g -pipe
++HOSTLDFLAGS		 =
++
+--- Firmware/nuttx-configs/navstik-v1/nsh/setenv.sh	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/nuttx-configs/navstik-v1/nsh/setenv.sh	2015-04-07 14:57:40.254235563 +0530
+@@ -0,0 +1,75 @@
++#!/bin/bash
++# configs/navstik-v1/usbnsh/setenv.sh
++#
++#   Copyright (C) 2013 Gregory Nutt. All rights reserved.
++#   Author: Gregory Nutt <gnutt@nuttx.org>
++#
++# Redistribution and use in source and binary forms, with or without
++# modification, are permitted provided that the following conditions
++# are met:
++#
++# 1. Redistributions of source code must retain the above copyright
++#    notice, this list of conditions and the following disclaimer.
++# 2. Redistributions in binary form must reproduce the above copyright
++#    notice, this list of conditions and the following disclaimer in
++#    the documentation and/or other materials provided with the
++#    distribution.
++# 3. Neither the name NuttX nor the names of its contributors may be
++#    used to endorse or promote products derived from this software
++#    without specific prior written permission.
++#
++# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++# POSSIBILITY OF SUCH DAMAGE.
++#
++
++if [ "$_" = "$0" ] ; then
++  echo "You must source this script, not run it!" 1>&2
++  exit 1
++fi
++
++WD=`pwd`
++if [ ! -x "setenv.sh" ]; then
++  echo "This script must be executed from the top-level NuttX build directory"
++  exit 1
++fi
++
++if [ -z "${PATH_ORIG}" ]; then
++  export PATH_ORIG="${PATH}"
++fi
++
++# This is the Cygwin path to the location where I installed the RIDE
++# toolchain under windows.  You will also have to edit this if you install
++# the RIDE toolchain in any other location
++#export TOOLCHAIN_BIN="/cygdrive/c/Program Files (x86)/Raisonance/Ride/arm-gcc/bin"
++
++# This is the Cygwin path to the location where I installed the CodeSourcery
++# toolchain under windows.  You will also have to edit this if you install
++# the CodeSourcery toolchain in any other location
++export TOOLCHAIN_BIN="/cygdrive/c/Program Files (x86)/CodeSourcery/Sourcery G++ Lite/bin"
++
++# These are the Cygwin paths to the locations where I installed the Atollic
++# toolchain under windows.  You will also have to edit this if you install
++# the Atollic toolchain in any other location.  /usr/bin is added before
++# the Atollic bin path because there is are binaries named gcc.exe and g++.exe
++# at those locations as well.
++#export TOOLCHAIN_BIN="/usr/bin:/cygdrive/c/Program Files (x86)/Atollic/TrueSTUDIO for ARM Pro 2.3.0/ARMTools/bin"
++#export TOOLCHAIN_BIN="/usr/bin:/cygdrive/c/Program Files (x86)/Atollic/TrueSTUDIO for STMicroelectronics STM32 Lite 2.3.0/ARMTools/bin"
++
++# This is the Cygwin path to the location where I build the buildroot
++# toolchain.
++#export TOOLCHAIN_BIN="${WD}/../misc/buildroot/build_arm_nofpu/staging_dir/bin"
++
++# Add the path to the toolchain to the PATH varialble
++export PATH="${TOOLCHAIN_BIN}:/sbin:/usr/sbin:${PATH_ORIG}"
++
++echo "PATH : ${PATH}"
+--- Firmware/nuttx-configs/navstik-v1/scripts/ld.script	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/nuttx-configs/navstik-v1/scripts/ld.script	2015-04-07 14:57:40.254235563 +0530
+@@ -0,0 +1,149 @@
++/****************************************************************************
++ * configs/navstik-v1/scripts/ld.script
++ *
++ *   Copyright (C) 2011 Gregory Nutt. All rights reserved.
++ *   Author: Gregory Nutt <gnutt@nuttx.org>
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in
++ *    the documentation and/or other materials provided with the
++ *    distribution.
++ * 3. Neither the name NuttX nor the names of its contributors may be
++ *    used to endorse or promote products derived from this software
++ *    without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ *
++ ****************************************************************************/
++
++/* The STM32F405RG has 1024Kb of FLASH beginning at address 0x0800:0000 and
++ * 192Kb of SRAM. SRAM is split up into three blocks:
++ *
++ * 1) 112Kb of SRAM beginning at address 0x2000:0000
++ * 2)  16Kb of SRAM beginning at address 0x2001:c000
++ * 3)  64Kb of CCM SRAM beginning at address 0x1000:0000
++ *
++ * When booting from FLASH, FLASH memory is aliased to address 0x0000:0000
++ * where the code expects to begin execution by jumping to the entry point in
++ * the 0x0800:0000 address range.
++ *
++ * The first 0x4000 of flash is reserved for the bootloader.
++ */
++
++MEMORY
++{
++    flash (rx)   : ORIGIN = 0x08000000, LENGTH = 1008K
++    sram (rwx)   : ORIGIN = 0x20000000, LENGTH = 128K
++    ccsram (rwx) : ORIGIN = 0x10000000, LENGTH = 64K
++}
++
++OUTPUT_ARCH(arm)
++
++ENTRY(__start)		/* treat __start as the anchor for dead code stripping */
++EXTERN(_vectors)	/* force the vectors to be included in the output */
++
++/* 
++ * Ensure that abort() is present in the final object.  The exception handling
++ * code pulled in by libgcc.a requires it (and that code cannot be easily avoided).
++ */
++EXTERN(abort)
++
++SECTIONS
++{
++	.text : {
++		_stext = ABSOLUTE(.);
++		*(.vectors)
++		*(.text .text.*)        
++		*(.fixup)
++		*(.gnu.warning)
++		*(.rodata .rodata.*)        
++		*(.gnu.linkonce.t.*)
++		*(.got)
++		*(.gcc_except_table)
++		*(.gnu.linkonce.r.*)
++		_etext = ABSOLUTE(.);
++
++		/* 
++		 * This is a hack to make the newlib libm __errno() call
++		 * use the NuttX get_errno_ptr() function.
++		 */
++		__errno = get_errno_ptr;
++	} > flash
++
++	/*
++	 * Init functions (static constructors and the like)
++	 */
++        .init_section : {
++                _sinit = ABSOLUTE(.);
++                KEEP(*(.init_array .init_array.*))
++                _einit = ABSOLUTE(.);
++        } > flash
++
++	/*
++	 * Construction data for parameters.
++	 */
++	__param ALIGN(4): {
++		__param_start = ABSOLUTE(.);
++		KEEP(*(__param*))
++		__param_end = ABSOLUTE(.);
++	} > flash
++
++	.ARM.extab : {
++		*(.ARM.extab*)
++	} > flash
++
++	__exidx_start = ABSOLUTE(.);
++	.ARM.exidx : {
++		*(.ARM.exidx*)
++	} > flash
++	__exidx_end = ABSOLUTE(.);
++
++	_eronly = ABSOLUTE(.);
++
++	.data : {
++		_sdata = ABSOLUTE(.);
++		*(.data .data.*)
++		*(.gnu.linkonce.d.*)
++		CONSTRUCTORS
++		_edata = ABSOLUTE(.);
++	} > sram AT > flash
++
++	.bss : {
++		_sbss = ABSOLUTE(.);
++		*(.bss .bss.*)
++		*(.gnu.linkonce.b.*)
++		*(COMMON)
++		_ebss = ABSOLUTE(.);
++	} > sram
++
++	/* Stabs debugging sections. */
++	.stab 0 : { *(.stab) }
++	.stabstr 0 : { *(.stabstr) }
++	.stab.excl 0 : { *(.stab.excl) }
++	.stab.exclstr 0 : { *(.stab.exclstr) }
++	.stab.index 0 : { *(.stab.index) }
++	.stab.indexstr 0 : { *(.stab.indexstr) }
++	.comment 0 : { *(.comment) }
++	.debug_abbrev 0 : { *(.debug_abbrev) }
++	.debug_info 0 : { *(.debug_info) }
++	.debug_line 0 : { *(.debug_line) }
++	.debug_pubnames 0 : { *(.debug_pubnames) }
++	.debug_aranges 0 : { *(.debug_aranges) }
++}
+--- Firmware/nuttx-configs/navstik-v1/src/empty.c	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/nuttx-configs/navstik-v1/src/empty.c	2015-04-07 14:57:40.254235563 +0530
+@@ -0,0 +1,4 @@
++/*
++ * There are no source files here, but libboard.a can't be empty, so 
++ * we have this empty source file to keep it company.
++ */
+--- Firmware/nuttx-configs/navstik-v1/src/Makefile	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/nuttx-configs/navstik-v1/src/Makefile	2015-04-07 14:57:40.254235563 +0530
+@@ -0,0 +1,84 @@
++############################################################################
++# configs/navstik-v1/src/Makefile
++#
++#   Copyright (C) 2013 Gregory Nutt. All rights reserved.
++#   Author: Gregory Nutt <gnutt@nuttx.org>
++#
++# Redistribution and use in source and binary forms, with or without
++# modification, are permitted provided that the following conditions
++# are met:
++#
++# 1. Redistributions of source code must retain the above copyright
++#    notice, this list of conditions and the following disclaimer.
++# 2. Redistributions in binary form must reproduce the above copyright
++#    notice, this list of conditions and the following disclaimer in
++#    the documentation and/or other materials provided with the
++#    distribution.
++# 3. Neither the name NuttX nor the names of its contributors may be
++#    used to endorse or promote products derived from this software
++#    without specific prior written permission.
++#
++# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
++# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++# POSSIBILITY OF SUCH DAMAGE.
++#
++############################################################################
++
++-include $(TOPDIR)/Make.defs
++
++CFLAGS		+= -I$(TOPDIR)/sched
++
++ASRCS		= 
++AOBJS		= $(ASRCS:.S=$(OBJEXT))
++
++CSRCS		= empty.c
++COBJS		= $(CSRCS:.c=$(OBJEXT))
++
++SRCS		= $(ASRCS) $(CSRCS)
++OBJS		= $(AOBJS) $(COBJS)
++
++ARCH_SRCDIR	= $(TOPDIR)/arch/$(CONFIG_ARCH)/src
++ifeq ($(WINTOOL),y)
++  CFLAGS	+= -I "${shell cygpath -w $(ARCH_SRCDIR)/chip}" \
++  		   -I "${shell cygpath -w $(ARCH_SRCDIR)/common}" \
++  		   -I "${shell cygpath -w $(ARCH_SRCDIR)/armv7-m}"
++else
++  CFLAGS	+= -I$(ARCH_SRCDIR)/chip -I$(ARCH_SRCDIR)/common -I$(ARCH_SRCDIR)/armv7-m
++endif
++
++all: libboard$(LIBEXT)
++
++$(AOBJS): %$(OBJEXT): %.S
++	$(call ASSEMBLE, $<, $@)
++
++$(COBJS) $(LINKOBJS): %$(OBJEXT): %.c
++	$(call COMPILE, $<, $@)
++
++libboard$(LIBEXT): $(OBJS)
++	$(call ARCHIVE, $@, $(OBJS))
++
++.depend: Makefile $(SRCS)
++	$(Q) $(MKDEP) $(CC) -- $(CFLAGS) -- $(SRCS) >Make.dep
++	$(Q) touch $@
++
++depend: .depend
++
++clean:
++	$(call DELFILE, libboard$(LIBEXT))
++	$(call CLEAN)
++
++distclean: clean
++	$(call DELFILE, Make.dep)
++	$(call DELFILE, .depend)
++
++-include Make.dep
++

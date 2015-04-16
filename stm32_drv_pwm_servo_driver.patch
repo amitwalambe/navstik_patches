@@ -1,0 +1,63 @@
+--- Firmware/src/drivers/stm32/drv_pwm_servo.c	2015-04-07 12:50:25.798575940 +0530
++++ pandapilot_v4/src/drivers/stm32/drv_pwm_servo.c	2015-04-07 14:57:40.282235562 +0530
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- *
++ *   Copyright (c) 2014 NavStik Development Team. All rights reserved.
+  *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -168,6 +168,12 @@
+ 		rCCR4(timer) = pwm_channels[channel].default_value;
+ 		rCCER(timer) |= GTIM_CCER_CC4E;
+ 		break;
++	
++	case 5:
++		rCCMR1(timer) |= (GTIM_CCMR_MODE_PWM1 << GTIM_CCMR1_OC2M_SHIFT) | GTIM_CCMR1_OC2PE;
++		rCCR2(timer) = pwm_channels[channel].default_value;
++		rCCER(timer) |= GTIM_CCER_CC2NE;
++		break;
+ 	}
+ }
+ 
+@@ -205,6 +211,9 @@
+ 		rCCR4(timer) = value;
+ 		break;
+ 
++	case 5:
++		rCCR2(timer) = value;
++		break;
+ 	default:
+ 		return -1;
+ 	}
+@@ -243,6 +252,10 @@
+ 	case 4:
+ 		value = rCCR4(timer);
+ 		break;
++
++	case 5:
++		value = rCCR2(timer);
++		break;
+ 	}
+ 
+ 	return value + 1;
+--- Firmware/src/drivers/stm32/drv_pwm_servo.h	2015-04-07 12:50:25.798575940 +0530
++++ pandapilot_v4/src/drivers/stm32/drv_pwm_servo.h	2015-04-07 14:57:40.282235562 +0530
+@@ -1,5 +1,5 @@
+ /****************************************************************************
+- *
++ *   Copyright (c) 2014 NavStik Development Team. All rights reserved.
+  *   Copyright (C) 2012 PX4 Development Team. All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -43,7 +43,7 @@
+ 
+ /* configuration limits */
+ #define PWM_SERVO_MAX_TIMERS	4
+-#define PWM_SERVO_MAX_CHANNELS	8
++#define PWM_SERVO_MAX_CHANNELS	6   // NAVSTIK has 6 PWM outputs
+ 
+ /* array of timers dedicated to PWM servo use */
+ struct pwm_servo_timer {
+Binary files Firmware/src/lib/uavcan/libuavcan/dsdl_compiler/libuavcan_dsdl_compiler/__init__.pyc and pandapilot_v4/src/lib/uavcan/libuavcan/dsdl_compiler/libuavcan_dsdl_compiler/__init__.pyc differ
+Binary files Firmware/src/lib/uavcan/libuavcan/dsdl_compiler/libuavcan_dsdl_compiler/pyratemp.pyc and pandapilot_v4/src/lib/uavcan/libuavcan/dsdl_compiler/libuavcan_dsdl_compiler/pyratemp.pyc differ

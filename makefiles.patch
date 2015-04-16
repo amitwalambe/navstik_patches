@@ -1,0 +1,388 @@
+--- Firmware/makefiles/firmware.mk	2015-04-07 12:50:25.770575941 +0530
++++ pandapilot_v4/makefiles/firmware.mk	2015-04-07 16:20:19.810014445 +0530
+@@ -1,4 +1,4 @@
+-#
++#   Copyright (c) 2014 NavStik Development Team. All rights reserved.
+ #   Copyright (C) 2012 PX4 Development Team. All rights reserved.
+ #
+ # Redistribution and use in source and binary forms, with or without
+@@ -30,12 +30,12 @@
+ #
+ 
+ #
+-# Generic Makefile for PX4 firmware images.
++# Generic Makefile for NAVSTIK firmware images.
+ #
+ # Requires:
+ #
+ # BOARD
+-#	Must be set to a board name known to the PX4 distribution (as
++#	Must be set to a board name known to the NAVSTIK distribution (as
+ #	we need a corresponding NuttX export archive to link with).
+ #
+ # Optional:
+@@ -48,7 +48,7 @@
+ #		$(MODULE_SEARCH_DIRS)
+ #		WORK_DIR
+ #		MODULE_SRC
+-#		PX4_MODULE_SRC
++#		NAVSTIK_MODULE_SRC
+ #
+ #	Application directories are expected to contain a module.mk
+ #	file which provides build configuration for the module. See
+@@ -59,8 +59,8 @@
+ #	by modules / libraries. Each entry in this list is formatted
+ #	as <command>.<priority>.<stacksize>.<entrypoint>
+ #
+-# PX4_BASE:
+-#	Points to a PX4 distribution. Normally determined based on the
++# NAVSTIK_BASE:
++#	Points to a NAVSTIK distribution. Normally determined based on the
+ #	path to this file.
+ #
+ # CONFIG:
+@@ -98,16 +98,16 @@
+ # Work out where this file is, so we can find other makefiles in the
+ # same directory.
+ #
+-# If PX4_BASE wasn't set previously, work out what it should be
++# If NAVSTIK_BASE wasn't set previously, work out what it should be
+ # and set it here now.
+ #
+ MK_DIR			?= $(dir $(lastword $(MAKEFILE_LIST)))
+-ifeq ($(PX4_BASE),)
+-export PX4_BASE		:= $(abspath $(MK_DIR)/..)
++ifeq ($(NAVSTIK_BASE),)
++export NAVSTIK_BASE		:= $(abspath $(MK_DIR)/..)
+ endif
+-$(info %  PX4_BASE            = $(PX4_BASE))
+-ifneq ($(words $(PX4_BASE)),1)
+-$(error Cannot build when the PX4_BASE path contains one or more space characters.)
++$(info %  NAVSTIK_BASE            = $(NAVSTIK_BASE))
++ifneq ($(words $(NAVSTIK_BASE)),1)
++$(error Cannot build when the NAVSTIK_BASE path contains one or more space characters.)
+ endif
+ 
+ $(info %  GIT_DESC            = $(GIT_DESC))
+@@ -132,7 +132,7 @@
+ ifneq ($(CONFIG_FILE),)
+ CONFIG			:= $(subst config_,,$(basename $(notdir $(CONFIG_FILE))))
+ else
+-CONFIG_FILE		:= $(wildcard $(PX4_MK_DIR)/config_$(CONFIG).mk)
++CONFIG_FILE		:= $(wildcard $(NAVSTIK_MK_DIR)/config_$(CONFIG).mk)
+ endif
+ ifeq ($(CONFIG),)
+ $(error Missing configuration name or file (specify with CONFIG=<config>))
+@@ -150,7 +150,7 @@
+ ifeq ($(BOARD),)
+ BOARD			:= $(firstword $(subst _, ,$(CONFIG)))
+ endif
+-BOARD_FILE		:= $(wildcard $(PX4_MK_DIR)/board_$(BOARD).mk)
++BOARD_FILE		:= $(wildcard $(NAVSTIK_MK_DIR)/board_$(BOARD).mk)
+ ifeq ($(BOARD_FILE),)
+ $(error Config $(CONFIG) references board $(BOARD), but no board definition file found)
+ endif
+@@ -188,20 +188,20 @@
+ #
+ # Append the per-board driver directory to the header search path.
+ #
+-INCLUDE_DIRS		+= $(PX4_MODULE_SRC)drivers/boards/$(BOARD)
++INCLUDE_DIRS		+= $(NAVSTIK_MODULE_SRC)drivers/boards/$(BOARD)
+ 
+ ################################################################################
+ # NuttX libraries and paths
+ ################################################################################
+ 
+-include $(PX4_MK_DIR)/nuttx.mk
++include $(NAVSTIK_MK_DIR)/nuttx.mk
+ 
+ ################################################################################
+ # Modules
+ ################################################################################
+ 
+ # where to look for modules
+-MODULE_SEARCH_DIRS	+= $(WORK_DIR) $(MODULE_SRC) $(PX4_MODULE_SRC)
++MODULE_SEARCH_DIRS	+= $(WORK_DIR) $(MODULE_SRC) $(NAVSTIK_MODULE_SRC)
+ 
+ # sort and unique the modules list
+ MODULES			:= $(sort $(MODULES))
+@@ -234,7 +234,7 @@
+ $(MODULE_OBJS):		workdir = $(@D)
+ $(MODULE_OBJS):		$(GLOBAL_DEPS) $(NUTTX_CONFIG_HEADER)
+ 	$(Q) $(MKDIR) -p $(workdir)
+-	$(Q) $(MAKE) -r -f $(PX4_MK_DIR)module.mk \
++	$(Q) $(MAKE) -r -f $(NAVSTIK_MK_DIR)module.mk \
+ 		-C $(workdir) \
+ 		MODULE_WORK_DIR=$(workdir) \
+ 		MODULE_OBJ=$@ \
+@@ -251,7 +251,7 @@
+ $(MODULE_CLEANS):	mkfile = $(patsubst %clean,%module.mk,$(relpath))
+ $(MODULE_CLEANS):
+ 	@$(ECHO) %% cleaning using $(mkfile)
+-	$(Q) $(MAKE) -r -f $(PX4_MK_DIR)module.mk \
++	$(Q) $(MAKE) -r -f $(NAVSTIK_MK_DIR)module.mk \
+ 	MODULE_WORK_DIR=$(dir $@) \
+ 	MODULE_MK=$(mkfile) \
+ 	clean
+@@ -261,7 +261,7 @@
+ ################################################################################
+ 
+ # where to look for libraries
+-LIBRARY_SEARCH_DIRS	+= $(WORK_DIR) $(MODULE_SRC) $(PX4_MODULE_SRC)
++LIBRARY_SEARCH_DIRS	+= $(WORK_DIR) $(MODULE_SRC) $(NAVSTIK_MODULE_SRC)
+ 
+ # sort and unique the library list
+ LIBRARIES		:= $(sort $(LIBRARIES))
+@@ -294,7 +294,7 @@
+ $(LIBRARY_LIBS):	workdir = $(@D)
+ $(LIBRARY_LIBS):	$(GLOBAL_DEPS) $(NUTTX_CONFIG_HEADER)
+ 	$(Q) $(MKDIR) -p $(workdir)
+-	$(Q) $(MAKE) -r -f $(PX4_MK_DIR)library.mk \
++	$(Q) $(MAKE) -r -f $(NAVSTIK_MK_DIR)library.mk \
+ 		-C $(workdir) \
+ 		LIBRARY_WORK_DIR=$(workdir) \
+ 		LIBRARY_LIB=$@ \
+@@ -311,7 +311,7 @@
+ $(LIBRARY_CLEANS):	mkfile = $(patsubst %clean,%library.mk,$(relpath))
+ $(LIBRARY_CLEANS):
+ 	@$(ECHO) %% cleaning using $(mkfile)
+-	$(Q) $(MAKE) -r -f $(PX4_MK_DIR)library.mk \
++	$(Q) $(MAKE) -r -f $(NAVSTIK_MK_DIR)library.mk \
+ 	LIBRARY_WORK_DIR=$(dir $@) \
+ 	LIBRARY_MK=$(mkfile) \
+ 	clean
+@@ -356,7 +356,7 @@
+ LINK_DEPS		+= $(ROMFS_OBJ)
+ 
+ # Remove all comments from startup and mixer files
+-ROMFS_PRUNER	 = $(PX4_BASE)/Tools/px_romfs_pruner.py
++ROMFS_PRUNER	 = $(NAVSTIK_BASE)/Tools/px_romfs_pruner.py
+ 
+ # Turn the ROMFS image into an object file
+ $(ROMFS_OBJ): $(ROMFS_IMG) $(GLOBAL_DEPS)
+@@ -464,7 +464,7 @@
+ #
+ # What we're going to build.
+ #
+-PRODUCT_BUNDLE		 = $(WORK_DIR)firmware.px4
++PRODUCT_BUNDLE		 = $(WORK_DIR)firmware.ns
+ PRODUCT_BIN		 = $(WORK_DIR)firmware.bin
+ PRODUCT_ELF		 = $(WORK_DIR)firmware.elf
+ PRODUCT_PARAMXML = $(WORK_DIR)/parameters.xml
+@@ -501,7 +501,7 @@
+ ifdef GEN_PARAM_XML
+ 	python $(PX4_BASE)/Tools/px_process_params.py --src-path $(PX4_BASE)/src --xml
+ 	$(Q) $(MKFW) --prototype $(IMAGE_DIR)/$(BOARD).prototype \
+-		--git_identity $(PX4_BASE) \
++		--git_identity $(NAVSTIK_BASE) \
+ 		--parameter_xml $(PRODUCT_PARAMXML) \
+ 		--image $< > $@
+ else
+@@ -522,7 +522,7 @@
+ 
+ .PHONY: upload
+ upload:	$(PRODUCT_BUNDLE) $(PRODUCT_BIN)
+-	$(Q) $(MAKE) -f $(PX4_MK_DIR)/upload.mk \
++	$(Q) $(MAKE) -f $(NAVSTIK_MK_DIR)/upload.mk \
+ 		METHOD=serial \
+ 		CONFIG=$(CONFIG) \
+ 		BOARD=$(BOARD) \
+--- Firmware/makefiles/library.mk	2015-04-07 12:50:25.770575941 +0530
++++ pandapilot_v4/makefiles/library.mk	2015-04-07 14:57:40.254235563 +0530
+@@ -1,4 +1,4 @@
+-#
++#   Copyright (c) 2014 NavStik Development Team. All rights reserved.
+ #   Copyright (c) 2013 PX4 Development Team. All rights reserved.
+ #
+ # Redistribution and use in source and binary forms, with or without
+@@ -30,7 +30,7 @@
+ #
+ 
+ #
+-# Framework makefile for PX4 libraries
++# Framework makefile for NAVSTIK libraries
+ #
+ # This makefile is invoked by firmware.mk to build each of the linraries
+ # that will subsequently be linked into the firmware image.
+@@ -93,7 +93,7 @@
+ #
+ # Get the board/toolchain config
+ #
+-include $(PX4_MK_DIR)/board_$(BOARD).mk
++include $(NAVSTIK_MK_DIR)/board_$(BOARD).mk
+ 
+ #
+ # Get the library's config
+--- Firmware/makefiles/module.mk	2015-04-07 12:50:25.770575941 +0530
++++ pandapilot_v4/makefiles/module.mk	2015-04-07 14:57:40.254235563 +0530
+@@ -1,4 +1,4 @@
+-#
++#   Copyright (c) 2014 NavStik Development Team. All rights reserved.
+ #   Copyright (c) 2012, 2013 PX4 Development Team. All rights reserved.
+ #
+ # Redistribution and use in source and binary forms, with or without
+@@ -30,7 +30,7 @@
+ #
+ 
+ #
+-# Framework makefile for PX4 modules
++# Framework makefile for NAVSTIK modules
+ #
+ # This makefile is invoked by firmware.mk to build each of the modules
+ # that will subsequently be linked into the firmware image.
+@@ -172,8 +172,8 @@
+ DEFAULT_VISIBILITY = default
+ endif
+ 
+-CFLAGS		+= -fvisibility=$(DEFAULT_VISIBILITY) -include $(PX4_INCLUDE_DIR)visibility.h
+-CXXFLAGS	+= -fvisibility=$(DEFAULT_VISIBILITY) -include $(PX4_INCLUDE_DIR)visibility.h
++CFLAGS		+= -fvisibility=$(DEFAULT_VISIBILITY) -include $(NAVSTIK_INCLUDE_DIR)visibility.h
++CXXFLAGS	+= -fvisibility=$(DEFAULT_VISIBILITY) -include $(NAVSTIK_INCLUDE_DIR)visibility.h
+ 
+ ################################################################################
+ # Build rules
+--- Firmware/makefiles/nuttx.mk	2015-04-07 12:50:25.770575941 +0530
++++ pandapilot_v4/makefiles/nuttx.mk	2015-04-07 14:57:40.254235563 +0530
+@@ -1,4 +1,4 @@
+-#
++#   Copyright (c) 2014 NavStik Development Team. All rights reserved.
+ #   Copyright (C) 2012 PX4 Development Team. All rights reserved.
+ #
+ # Redistribution and use in source and binary forms, with or without
+@@ -39,7 +39,7 @@
+ #
+ NUTTX_ARCHIVE		:= $(wildcard $(ARCHIVE_DIR)$(BOARD).export)
+ ifeq ($(NUTTX_ARCHIVE),)
+-$(error The NuttX export archive for $(BOARD) is missing from $(ARCHIVE_DIR) - try 'make archives' in $(PX4_BASE))
++$(error The NuttX export archive for $(BOARD) is missing from $(ARCHIVE_DIR) - try 'make archives' in $(NAVSTIK_BASE))
+ endif
+ 
+ #
+--- Firmware/makefiles/setup.mk	2015-04-07 12:50:25.770575941 +0530
++++ pandapilot_v4/makefiles/setup.mk	2015-04-07 16:21:10.398012190 +0530
+@@ -1,4 +1,4 @@
+-#
++#   Copyright (c) 2014 NavStik Development Team. All rights reserved.   
+ #   Copyright (C) 2012 PX4 Development Team. All rights reserved.
+ #
+ # Redistribution and use in source and binary forms, with or without
+@@ -41,35 +41,34 @@
+ # the number of duplicate slashes we have lying around in paths,
+ # and is consistent with joining the results of $(dir) and $(notdir).
+ #
+-export PX4_INCLUDE_DIR	 = $(abspath $(PX4_BASE)/src/include)/
+-export PX4_MODULE_SRC	 = $(abspath $(PX4_BASE)/src)/
+-export PX4_LIB_DIR	 = $(abspath $(PX4_BASE)/src/lib)/
+-export PX4_PLATFORMS_DIR = $(abspath $(PX4_BASE)/src/platforms)/
+-export PX4_MK_DIR	 = $(abspath $(PX4_BASE)/makefiles)/
+-export NUTTX_SRC	 = $(abspath $(PX4_BASE)/NuttX/nuttx)/
+-export MAVLINK_SRC	 = $(abspath $(PX4_BASE)/mavlink/include/mavlink/v1.0)/
+-export NUTTX_APP_SRC	 = $(abspath $(PX4_BASE)/NuttX/apps)/
+-export MAVLINK_SRC	 = $(abspath $(PX4_BASE)/mavlink)/
+-export UAVCAN_DIR	 = $(abspath $(PX4_BASE)/uavcan)/
+-export ROMFS_SRC	 = $(abspath $(PX4_BASE)/ROMFS)/
+-export IMAGE_DIR	 = $(abspath $(PX4_BASE)/Images)/
+-export BUILD_DIR	 = $(abspath $(PX4_BASE)/Build)/
+-export ARCHIVE_DIR	 = $(abspath $(PX4_BASE)/Archives)/
++export NAVSTIK_INCLUDE_DIR	 = $(abspath $(NAVSTIK_BASE)/src/include)/
++export NAVSTIK_MODULE_SRC	 = $(abspath $(NAVSTIK_BASE)/src)/
++export NAVSTIK_LIB_DIR	 = $(abspath $(NAVSTIK_BASE)/src/lib)/
++export NAVSTIK_MK_DIR	 = $(abspath $(NAVSTIK_BASE)/makefiles)/
++export NUTTX_SRC	 = $(abspath $(NAVSTIK_BASE)/NuttX/nuttx)/
++export MAVLINK_SRC	 = $(abspath $(NAVSTIK_BASE)/mavlink/include/mavlink/v1.0)/
++export NUTTX_APP_SRC	 = $(abspath $(NAVSTIK_BASE)/NuttX/apps)/
++export MAVLINK_SRC	 = $(abspath $(NAVSTIK_BASE)/mavlink)/
++export UAVCAN_DIR	 = $(abspath $(NAVSTIK_BASE)/uavcan)/
++export ROMFS_SRC	 = $(abspath $(NAVSTIK_BASE)/ROMFS)/
++export IMAGE_DIR	 = $(abspath $(NAVSTIK_BASE)/Images)/
++export BUILD_DIR	 = $(abspath $(NAVSTIK_BASE)/Build)/
++export ARCHIVE_DIR	 = $(abspath $(NAVSTIK_BASE)/Archives)/
+ 
+ #
+ # Default include paths
+ #
+-export INCLUDE_DIRS	:= $(PX4_MODULE_SRC) \
+-			   $(PX4_MODULE_SRC)/modules/ \
+-			   $(PX4_INCLUDE_DIR) \
+-			   $(PX4_LIB_DIR) \
+-			   $(PX4_PLATFORMS_DIR)
++export INCLUDE_DIRS	:= $(NAVSTIK_MODULE_SRC) \
++			   $(NAVSTIK_MODULE_SRC)/modules/ \
++			   $(NAVSTIK_INCLUDE_DIR) \
++			   $(NAVSTIK_LIB_DIR)
++#			   $(PX4_PLATFORMS_DIR)
+ 
+ #
+ # Tools
+ #
+-export MKFW		 = $(PX4_BASE)/Tools/px_mkfw.py
+-export UPLOADER		 = $(PX4_BASE)/Tools/px_uploader.py
++export MKFW		 = $(NAVSTIK_BASE)/Tools/px_mkfw.py
++export UPLOADER		 = $(NAVSTIK_BASE)/Tools/px_uploader.py
+ export COPY		 = cp
+ export COPYDIR		 = cp -Rf
+ export REMOVE		 = rm -f
+--- Firmware/makefiles/toolchain_gnu-arm-eabi.mk	2015-04-07 12:50:25.770575941 +0530
++++ pandapilot_v4/makefiles/toolchain_gnu-arm-eabi.mk	2015-04-07 14:59:15.130231333 +0530
+@@ -1,4 +1,4 @@
+-#
++#   Copyright (c) 2014 NavStik Development Team. All rights reserved.
+ #   Copyright (C) 2012-2014 PX4 Development Team. All rights reserved.
+ #
+ # Redistribution and use in source and binary forms, with or without
+@@ -305,15 +305,15 @@
+ #       like the MinGW tools insert an extra _ in the binary symbol name; e.g.
+ #	the path:
+ #
+-#	/d/px4/firmware/Build/px4fmu_default.build/romfs.img
++#	/d/navstik/firmware/Build/navstik-v1_default.build/romfs.img
+ #
+ #	is assigned symbols like:
+ #
+-#	_binary_d__px4_firmware_Build_px4fmu_default_build_romfs_img_size
++#	_binary_d__navstik_firmware_Build_navstik-v1_default_build_romfs_img_size
+ #
+ #	when we would expect
+ #
+-#	_binary__d_px4_firmware_Build_px4fmu_default_build_romfs_img_size
++#	_binary__d_navstik_firmware_Build_navstik-v1_default_build_romfs_img_size
+ #
+ define BIN_SYM_PREFIX
+ 	_binary_$(subst /,_,$(subst .,_,$1))
+--- Firmware/makefiles/upload.mk	2015-04-07 12:50:25.770575941 +0530
++++ pandapilot_v4/makefiles/upload.mk	2015-04-07 14:59:15.130231333 +0530
+@@ -1,8 +1,8 @@
+ #
+-# Rules and tools for uploading firmware to various PX4 boards.
++# Rules and tools for uploading firmware to various NAVSTIK boards.
+ #
+ 
+-UPLOADER		 = $(PX4_BASE)/Tools/px_uploader.py
++UPLOADER		 = $(NAVSTIK_BASE)/Tools/px_uploader.py
+ 
+ SYSTYPE			:= $(shell uname -s)
+ 
+@@ -24,10 +24,10 @@
+ .PHONY:	all upload-$(METHOD)-$(BOARD)
+ all:	upload-$(METHOD)-$(BOARD)
+ 
+-upload-serial-px4fmu-v1:	$(BUNDLE) $(UPLOADER)
++upload-serial-navstik-v1:	$(BUNDLE) $(UPLOADER)
+ 	$(Q) $(PYTHON) -u $(UPLOADER) --port $(SERIAL_PORTS) $(BUNDLE)
+ 
+-upload-serial-px4fmu-v2:	$(BUNDLE) $(UPLOADER)
++upload-serial-navstik-v2:	$(BUNDLE) $(UPLOADER)
+ 	$(Q) $(PYTHON) -u $(UPLOADER) --port $(SERIAL_PORTS) $(BUNDLE)
+ 
+ upload-serial-aerocore:
+@@ -40,8 +40,8 @@
+ #
+ JTAGCONFIG		?= interface/olimex-jtag-tiny.cfg
+ 
+-upload-jtag-px4fmu: all
+-	@$(ECHO) Attempting to flash PX4FMU board via JTAG
++upload-jtag-navstik: all
++	@$(ECHO) Attempting to flash NAVSTIK board via JTAG
+ 	$(Q) $(OPENOCD) -f $(JTAGCONFIG) -f ../Bootloader/stm32f4x.cfg -c init -c "reset halt" -c "flash write_image erase nuttx/nuttx" -c "flash write_image erase ../Bootloader/px4fmu_bl.elf" -c "reset run" -c shutdown
+ 
+ upload-jtag-px4io: all

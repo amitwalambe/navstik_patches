@@ -1,0 +1,101 @@
+--- Firmware/src/drivers/hmc5883/hmc5883.cpp	2015-04-09 11:20:28.192067580 +0530
++++ pandapilot_v4/src/drivers/hmc5883/hmc5883.cpp	2015-04-09 12:09:10.871937274 +0530
+@@ -1,6 +1,6 @@
+ /****************************************************************************
+  *
+- *   Copyright (c) 2012-2015 PX4 Development Team. All rights reserved.
++ *   Copyright (c) 2012-2014 PX4 Development Team. All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted provided that the following conditions
+@@ -66,9 +66,9 @@
+ #include <drivers/drv_mag.h>
+ #include <drivers/drv_hrt.h>
+ #include <drivers/device/ringbuffer.h>
+-#include <drivers/drv_device.h>
+ 
+ #include <uORB/uORB.h>
++#include <uORB/topics/subsystem_info.h>
+ 
+ #include <float.h>
+ #include <getopt.h>
+@@ -93,6 +93,9 @@
+ #define ADDR_DATA_OUT_Y_MSB		0x07
+ #define ADDR_DATA_OUT_Y_LSB		0x08
+ #define ADDR_STATUS			0x09
++#define ADDR_ID_A			0x0a
++#define ADDR_ID_B			0x0b
++#define ADDR_ID_C			0x0c
+ 
+ /* temperature on hmc5983 only */
+ #define ADDR_TEMP_OUT_MSB		0x31
+@@ -123,6 +126,10 @@
+ 	HMC5883_BUS_SPI
+ };
+ 
++#define ID_A_WHO_AM_I			'H'
++#define ID_B_WHO_AM_I			'4'
++#define ID_C_WHO_AM_I			'3'
++
+ /* oddly, ERROR is not defined for c++ */
+ #ifdef ERROR
+ # undef ERROR
+@@ -1410,7 +1417,10 @@
+ 	uint8_t busnum;
+ 	HMC5883	*dev;
+ } bus_options[] = {
+-	{ HMC5883_BUS_I2C_EXTERNAL, "/dev/hmc5883_ext", &HMC5883_I2C_interface, PX4_I2C_BUS_EXPANSION, NULL },
++//	{ HMC5883_BUS_I2C_EXTERNAL, "/dev/hmc5883_ext", &HMC5883_I2C_interface, PX4_I2C_BUS_EXPANSION, NULL },
++#ifdef NAVSTIK_I2C_BUS_SENSORS
++	{ HMC5883_BUS_I2C_INTERNAL, "/dev/hmc5883_int", &HMC5883_I2C_interface, NAVSTIK_I2C_BUS_SENSORS, NULL },
++#endif
+ #ifdef PX4_I2C_BUS_ONBOARD
+ 	{ HMC5883_BUS_I2C_INTERNAL, "/dev/hmc5883_int", &HMC5883_I2C_interface, PX4_I2C_BUS_ONBOARD, NULL },
+ #endif
+@@ -1705,7 +1715,7 @@
+ 	warnx("    -R rotation");
+ 	warnx("    -C calibrate on start");
+ 	warnx("    -X only external bus");
+-#if (PX4_I2C_BUS_ONBOARD || PX4_SPIDEV_HMC)
++#if NAVSTIK_I2C_BUS_SENSORS
+ 	warnx("    -I only internal bus");
+ #endif
+ }
+@@ -1726,7 +1736,7 @@
+ 		case 'R':
+ 			rotation = (enum Rotation)atoi(optarg);
+ 			break;
+-#if (PX4_I2C_BUS_ONBOARD || PX4_SPIDEV_HMC)
++#ifdef NAVSTIK_I2C_BUS_SENSORS
+ 		case 'I':
+ 			busid = HMC5883_BUS_I2C_INTERNAL;
+ 			break;
+--- Firmware/src/drivers/hmc5883/hmc5883_i2c.cpp	2015-04-07 12:50:25.786575941 +0530
++++ pandapilot_v4/src/drivers/hmc5883/hmc5883_i2c.cpp	2015-04-07 16:18:44.246018706 +0530
+@@ -60,8 +60,12 @@
+ #include "board_config.h"
+ 
+ #ifdef PX4_I2C_OBDEV_HMC5883
+-
+ #define HMC5883L_ADDRESS		PX4_I2C_OBDEV_HMC5883
++#endif
++
++#ifdef NAVSTIK_I2C_BUS_SENSORS
++#define HMC5883L_ADDRESS		NAVSTIK_I2C_OBDEV_HMC5883
++#endif
+ 
+ device::Device *HMC5883_I2C_interface(int bus);
+ 
+@@ -183,4 +187,3 @@
+ 	return transfer(&cmd, 1, (uint8_t *)data, count);
+ }
+ 
+-#endif /* PX4_I2C_OBDEV_HMC5883 */
+--- Firmware/src/drivers/hmc5883/module.mk	2015-04-07 12:50:25.786575941 +0530
++++ pandapilot_v4/src/drivers/hmc5883/module.mk	2015-04-07 16:23:06.362007020 +0530
+@@ -1,5 +1,4 @@
+ ############################################################################
+-#
+ #   Copyright (c) 2012-2015 PX4 Development Team. All rights reserved.
+ #
+ # Redistribution and use in source and binary forms, with or without

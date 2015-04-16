@@ -1,0 +1,19 @@
+--- Firmware/Firmware.sublime-project	2015-04-07 12:50:25.758575942 +0530
++++ pandapilot_v4/Firmware.sublime-project	2015-04-07 16:22:45.278007960 +0530
+@@ -38,14 +38,14 @@
+ 	"build_systems":
+ 	[
+ 		{
+-			"name": "PX4: make all",
++			"name": "NAVSTIK: make all",
+ 			"working_dir": "${project_path}",
+ 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
+ 			"cmd": ["make"],
+ 			"shell": true
+ 		},
+ 		{
+-			"name": "PX4: make and upload",
++			"name": "NAVSTIK: make and upload",
+ 			"working_dir": "${project_path}",
+ 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
+ 			"cmd": ["make upload px4fmu-v2_default -j8"],

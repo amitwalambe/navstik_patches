@@ -1,0 +1,117 @@
+Index: Firmware-test/Makefile
+===================================================================
+--- Firmware-test.orig/Makefile	2015-04-10 13:29:48.917011315 +0530
++++ Firmware-test/Makefile	2015-04-10 13:29:48.909011316 +0530
+@@ -100,31 +100,31 @@
+ #
+ # Built products
+ #
+-DESIRED_FIRMWARES 	 = $(foreach config,$(CONFIGS),$(IMAGE_DIR)$(config).px4)
+-STAGED_FIRMWARES	 = $(foreach config,$(KNOWN_CONFIGS),$(IMAGE_DIR)$(config).px4)
+-FIRMWARES		 = $(foreach config,$(KNOWN_CONFIGS),$(BUILD_DIR)$(config).build/firmware.px4)
++DESIRED_FIRMWARES 	 = $(foreach config,$(CONFIGS),$(IMAGE_DIR)$(config).ns)
++STAGED_FIRMWARES	 = $(foreach config,$(KNOWN_CONFIGS),$(IMAGE_DIR)$(config).ns)
++FIRMWARES		 = $(foreach config,$(KNOWN_CONFIGS),$(BUILD_DIR)$(config).build/firmware.ns)
+ 
+-all:	$(DESIRED_FIRMWARES)
++all:	quickclean $(DESIRED_FIRMWARES)
+ 
+ #
+ # Copy FIRMWARES into the image directory.
+ #
+ # XXX copying the .bin files is a hack to work around the PX4IO uploader
+-#     not supporting .px4 files, and it should be deprecated onced that
++#     not supporting .ns files, and it should be deprecated onced that
+ #     is taken care of.
+ #
+-$(STAGED_FIRMWARES): $(IMAGE_DIR)%.px4: $(BUILD_DIR)%.build/firmware.px4
++$(STAGED_FIRMWARES): $(IMAGE_DIR)%.ns: $(BUILD_DIR)%.build/firmware.ns
+ 	@$(ECHO) %% Copying $@
+ 	$(Q) $(COPY) $< $@
+-	$(Q) $(COPY) $(patsubst %.px4,%.bin,$<) $(patsubst %.px4,%.bin,$@)
++	$(Q) $(COPY) $(patsubst %.ns,%.bin,$<) $(patsubst %.ns,%.bin,$@)
+ 
+ #
+ # Generate FIRMWARES.
+ #
+ .PHONY: $(FIRMWARES)
+-$(BUILD_DIR)%.build/firmware.px4: config   = $(patsubst $(BUILD_DIR)%.build/firmware.px4,%,$@)
+-$(BUILD_DIR)%.build/firmware.px4: work_dir = $(BUILD_DIR)$(config).build/
+-$(FIRMWARES): $(BUILD_DIR)%.build/firmware.px4:	generateuorbtopicheaders checksubmodules
++$(BUILD_DIR)%.build/firmware.ns: config   = $(patsubst $(BUILD_DIR)%.build/firmware.ns,%,$@)
++$(BUILD_DIR)%.build/firmware.ns: work_dir = $(BUILD_DIR)$(config).build/
++$(FIRMWARES): $(BUILD_DIR)%.build/firmware.ns:	generateuorbtopicheaders checksubmodules
+ 	@$(ECHO) %%%%
+ 	@$(ECHO) %%%% Building $(config) in $(work_dir)
+ 	@$(ECHO) %%%%
+@@ -141,11 +141,11 @@
+ # This is a pretty vile hack, since it hard-codes knowledge of the FMU->IO dependency
+ # and forces the _default config in all cases. There has to be a better way to do this...
+ #
+-FMU_VERSION		 = $(patsubst px4fmu-%,%,$(word 1, $(subst _, ,$(1))))
++FMU_VERSION		 = $(patsubst navstikfmu-%,%,$(word 1, $(subst _, ,$(1))))
+ define FMU_DEP
+-$(BUILD_DIR)$(1).build/firmware.px4: $(IMAGE_DIR)px4io-$(call FMU_VERSION,$(1))_default.px4
++$(BUILD_DIR)$(1).build/firmware.ns: $(IMAGE_DIR)navstik-$(call FMU_VERSION,$(1))_default.ns
+ endef
+-FMU_CONFIGS		:= $(filter px4fmu%,$(CONFIGS))
++FMU_CONFIGS		:= $(filter navstikfmu%,$(CONFIGS))
+ $(foreach config,$(FMU_CONFIGS),$(eval $(call FMU_DEP,$(config))))
+ 
+ #
+@@ -229,8 +229,8 @@
+ UORB_TEMPLATE_DIR = $(PX4_BASE)msg/templates/uorb
+ MULTIPLATFORM_TEMPLATE_DIR = $(PX4_BASE)msg/templates/px4/uorb
+ TOPICS_DIR = $(PX4_BASE)src/modules/uORB/topics
+-MULTIPLATFORM_HEADER_DIR = $(PX4_BASE)src/platforms/nuttx/px4_messages
+-MULTIPLATFORM_PREFIX = px4_
++MULTIPLATFORM_HEADER_DIR = $(PX4_BASE)src/platforms/nuttx/navstik_messages
++MULTIPLATFORM_PREFIX = navstik_
+ TOPICHEADER_TEMP_DIR = $(BUILD_DIR)topics_temporary
+ GENMSG_PYTHONPATH = $(PX4_BASE)Tools/genmsg/src
+ GENCPP_PYTHONPATH = $(PX4_BASE)Tools/gencpp/src
+@@ -271,11 +271,21 @@
+ # a complete re-compilation, 'distclean' should remove everything
+ # that's generated leaving only files that are in source control.
+ #
++.PHONY:	quickclean
++quickclean:
++	@echo > /dev/null
++	$(Q) $(RMDIR) $(BUILD_DIR)$(KNOWN_CONFIGS).build/romfs_scratch
++	$(Q) $(REMOVE) $(IMAGE_DIR)*.bin
++#	$(Q) $(REMOVE) $(BUILD_DIR)$(KNOWN_CONFIGS).build/firmware.*
++#	$(Q) $(REMOVE) $(BUILD_DIR)$(KNOWN_CONFIGS).build/romfs*
++#	$(Q) $(REMOVE) $(IMAGE_DIR)*.ns
++
+ .PHONY:	clean
+ clean:
+ 	@echo > /dev/null
+ 	$(Q) $(RMDIR) $(BUILD_DIR)*.build
+-	$(Q) $(REMOVE) $(IMAGE_DIR)*.px4
++	$(Q) $(REMOVE) $(IMAGE_DIR)*.ns
++	$(Q) $(REMOVE) $(IMAGE_DIR)*.bin
+ 
+ .PHONY:	distclean
+ distclean: clean
+@@ -290,7 +300,7 @@
+ .PHONY: help
+ help:
+ 	@$(ECHO) ""
+-	@$(ECHO) " PX4 firmware builder"
++	@$(ECHO) " NAVSTIK firmware builder"
+ 	@$(ECHO) " ===================="
+ 	@$(ECHO) ""
+ 	@$(ECHO) "  Available targets:"
+Index: Firmware-test/makefiles/firmware.mk
+===================================================================
+--- Firmware-test.orig/makefiles/firmware.mk	2015-04-10 13:29:48.917011315 +0530
++++ Firmware-test/makefiles/firmware.mk	2015-04-10 13:29:48.909011316 +0530
+@@ -464,7 +464,7 @@
+ #
+ # What we're going to build.
+ #
+-PRODUCT_BUNDLE		 = $(WORK_DIR)firmware.px4
++PRODUCT_BUNDLE		 = $(WORK_DIR)firmware.ns
+ PRODUCT_BIN		 = $(WORK_DIR)firmware.bin
+ PRODUCT_ELF		 = $(WORK_DIR)firmware.elf
+ PRODUCT_PARAMXML = $(WORK_DIR)/parameters.xml

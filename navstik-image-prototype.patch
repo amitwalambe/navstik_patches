@@ -1,0 +1,15 @@
+--- Firmware/Images/navstik-v1.prototype	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/Images/navstik-v1.prototype	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,12 @@
++{
++    "board_id": 1, 
++    "magic": "NavStik", 
++    "description": "Firmware for the NAVSTIK board", 
++    "image": "", 
++    "build_time": 0, 
++    "summary": "NAVSTIK",
++    "version": "0.1",
++    "image_size": 0,
++    "git_identity": "",
++    "board_revision": 0
++}

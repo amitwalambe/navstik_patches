@@ -1,0 +1,903 @@
+Index: Firmware-test/makefiles/board_aerocore.mk
+===================================================================
+--- Firmware-test.orig/makefiles/board_aerocore.mk	2015-04-10 09:51:39.957594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,11 +0,0 @@
+-#
+-# Board-specific definitions for the Gumstix AeroCore
+-#
+-
+-#
+-# Configure the toolchain
+-#
+-CONFIG_ARCH			 = CORTEXM4F
+-CONFIG_BOARD			 = AEROCORE
+-
+-include $(PX4_MK_DIR)/toolchain_gnu-arm-eabi.mk
+Index: Firmware-test/makefiles/board_px4fmu-v1.mk
+===================================================================
+--- Firmware-test.orig/makefiles/board_px4fmu-v1.mk	2015-04-10 09:51:39.941594878 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,11 +0,0 @@
+-#
+-# Board-specific definitions for the PX4FMU
+-#
+-
+-#
+-# Configure the toolchain
+-#
+-CONFIG_ARCH			 = CORTEXM4F
+-CONFIG_BOARD			 = PX4FMU_V1
+-
+-include $(PX4_MK_DIR)/toolchain_gnu-arm-eabi.mk
+Index: Firmware-test/makefiles/board_px4fmu-v2.mk
+===================================================================
+--- Firmware-test.orig/makefiles/board_px4fmu-v2.mk	2015-04-10 09:51:39.961594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,11 +0,0 @@
+-#
+-# Board-specific definitions for the PX4FMUv2
+-#
+-
+-#
+-# Configure the toolchain
+-#
+-CONFIG_ARCH			 = CORTEXM4F
+-CONFIG_BOARD			 = PX4FMU_V2
+-
+-include $(PX4_MK_DIR)/toolchain_gnu-arm-eabi.mk
+Index: Firmware-test/makefiles/board_px4io-v1.mk
+===================================================================
+--- Firmware-test.orig/makefiles/board_px4io-v1.mk	2015-04-10 09:51:39.957594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,11 +0,0 @@
+-#
+-# Board-specific definitions for the PX4IO
+-#
+-
+-#
+-# Configure the toolchain
+-#
+-CONFIG_ARCH			 = CORTEXM3
+-CONFIG_BOARD			 = PX4IO_V1
+-
+-include $(PX4_MK_DIR)/toolchain_gnu-arm-eabi.mk
+Index: Firmware-test/makefiles/board_px4io-v2.mk
+===================================================================
+--- Firmware-test.orig/makefiles/board_px4io-v2.mk	2015-04-10 09:51:39.941594878 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,11 +0,0 @@
+-#
+-# Board-specific definitions for the PX4IOv2
+-#
+-
+-#
+-# Configure the toolchain
+-#
+-CONFIG_ARCH			 = CORTEXM3
+-CONFIG_BOARD			 = PX4IO_V2
+-
+-include $(PX4_MK_DIR)/toolchain_gnu-arm-eabi.mk
+Index: Firmware-test/makefiles/config_aerocore_default.mk
+===================================================================
+--- Firmware-test.orig/makefiles/config_aerocore_default.mk	2015-04-10 09:51:39.961594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,126 +0,0 @@
+-#
+-# Makefile for the AeroCore *default* configuration
+-#
+-
+-#
+-# Use the configuration's ROMFS.
+-#
+-ROMFS_ROOT	 = $(PX4_BASE)/ROMFS/px4fmu_common
+-
+-#
+-# Board support modules
+-#
+-MODULES		+= drivers/device
+-MODULES		+= drivers/stm32
+-MODULES		+= drivers/stm32/adc
+-MODULES		+= drivers/stm32/tone_alarm
+-MODULES		+= drivers/led
+-MODULES		+= drivers/px4fmu
+-MODULES		+= drivers/boards/aerocore
+-MODULES		+= drivers/lsm303d
+-MODULES		+= drivers/l3gd20
+-MODULES		+= drivers/ms5611
+-MODULES		+= drivers/gps
+-MODULES		+= drivers/hil
+-MODULES		+= modules/sensors
+-
+-#
+-# System commands
+-#
+-MODULES		+= systemcmds/ver
+-MODULES		+= systemcmds/mixer
+-MODULES		+= systemcmds/param
+-MODULES		+= systemcmds/perf
+-MODULES		+= systemcmds/preflight_check
+-MODULES		+= systemcmds/pwm
+-MODULES		+= systemcmds/esc_calib
+-MODULES		+= systemcmds/reboot
+-MODULES		+= systemcmds/top
+-MODULES		+= systemcmds/config
+-MODULES		+= systemcmds/nshterm
+-MODULES		+= systemcmds/mtd
+-MODULES		+= systemcmds/dumpfile
+-
+-#
+-# General system control
+-#
+-MODULES		+= modules/commander
+-MODULES		+= modules/navigator
+-MODULES		+= modules/mavlink
+-
+-#
+-# Estimation modules (EKF/ SO3 / other filters)
+-#
+-MODULES		+= modules/attitude_estimator_ekf
+-MODULES		+= modules/attitude_estimator_so3
+-MODULES		+= modules/ekf_att_pos_estimator
+-MODULES		+= modules/position_estimator_inav
+-
+-#
+-# Vehicle Control
+-#
+-MODULES		+= modules/fw_pos_control_l1
+-MODULES		+= modules/fw_att_control
+-MODULES		+= modules/mc_att_control
+-MODULES		+= modules/mc_pos_control
+-
+-#
+-# Library modules
+-#
+-MODULES		+= modules/systemlib
+-MODULES		+= modules/systemlib/mixer
+-MODULES		+= modules/controllib
+-MODULES		+= modules/uORB
+-MODULES		+= modules/dataman
+-
+-#
+-# Libraries
+-#
+-LIBRARIES	+= lib/mathlib/CMSIS
+-MODULES		+= lib/mathlib
+-MODULES		+= lib/mathlib/math/filter
+-MODULES		+= lib/ecl
+-MODULES		+= lib/external_lgpl
+-MODULES		+= lib/geo
+-MODULES		+= lib/geo_lookup
+-MODULES		+= lib/conversion
+-MODULES		+= lib/launchdetection
+-
+-#
+-# Demo apps
+-#
+-#MODULES		+= examples/math_demo
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/hello_sky
+-MODULES		+= examples/px4_simple_app
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/daemon
+-#MODULES		+= examples/px4_daemon_app
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/debug_values
+-#MODULES		+= examples/px4_mavlink_debug
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/example_fixedwing_control
+-#MODULES			+= examples/fixedwing_control
+-
+-# Hardware test
+-#MODULES			+= examples/hwtest
+-
+-#
+-# Transitional support - add commands from the NuttX export archive.
+-#
+-# In general, these should move to modules over time.
+-#
+-# Each entry here is <command>.<priority>.<stacksize>.<entrypoint> but we use a helper macro
+-# to make the table a bit more readable.
+-#
+-define _B
+-	$(strip $1).$(or $(strip $2),SCHED_PRIORITY_DEFAULT).$(or $(strip $3),CONFIG_PTHREAD_STACK_DEFAULT).$(strip $4)
+-endef
+-
+-BUILTIN_COMMANDS := \
+-    $(call _B, hello, , 2048, hello_main) \
+-    $(call _B, i2c, , 2048, i2c_main)
+Index: Firmware-test/makefiles/config_px4fmu-v1_default.mk
+===================================================================
+--- Firmware-test.orig/makefiles/config_px4fmu-v1_default.mk	2015-04-10 09:51:39.961594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,160 +0,0 @@
+-#
+-# Makefile for the px4fmu_default configuration
+-#
+-
+-#
+-# Use the configuration's ROMFS.
+-#
+-ROMFS_ROOT	 = $(PX4_BASE)/ROMFS/px4fmu_common
+-ROMFS_OPTIONAL_FILES = $(PX4_BASE)/Images/px4io-v1_default.bin
+-
+-#
+-# Board support modules
+-#
+-MODULES		+= drivers/device
+-MODULES		+= drivers/stm32
+-MODULES		+= drivers/stm32/adc
+-MODULES		+= drivers/stm32/tone_alarm
+-MODULES		+= drivers/led
+-MODULES		+= drivers/px4io
+-MODULES		+= drivers/px4fmu
+-MODULES		+= drivers/boards/px4fmu-v1
+-MODULES		+= drivers/ardrone_interface
+-MODULES		+= drivers/l3gd20
+-MODULES		+= drivers/mpu6000
+-MODULES		+= drivers/hmc5883
+-MODULES		+= drivers/ms5611
+-MODULES		+= drivers/ll40ls
+-MODULES		+= drivers/trone
+-MODULES		+= drivers/mb12xx
+-MODULES		+= drivers/gps
+-MODULES		+= drivers/hil
+-MODULES		+= drivers/blinkm
+-MODULES		+= drivers/rgbled
+-MODULES		+= drivers/mkblctrl
+-MODULES		+= drivers/airspeed
+-MODULES		+= drivers/ets_airspeed
+-MODULES		+= drivers/meas_airspeed
+-MODULES		+= drivers/frsky_telemetry
+-MODULES		+= modules/sensors
+-
+-#
+-# System commands
+-#
+-MODULES		+= systemcmds/mtd
+-MODULES		+= systemcmds/mixer
+-MODULES		+= systemcmds/param
+-MODULES		+= systemcmds/perf
+-MODULES		+= systemcmds/preflight_check
+-MODULES		+= systemcmds/pwm
+-MODULES		+= systemcmds/esc_calib
+-MODULES		+= systemcmds/reboot
+-MODULES		+= systemcmds/top
+-MODULES		+= systemcmds/config
+-MODULES		+= systemcmds/nshterm
+-MODULES		+= systemcmds/dumpfile
+-MODULES		+= systemcmds/ver
+-
+-#
+-# General system control
+-#
+-MODULES		+= modules/commander
+-MODULES		+= modules/navigator
+-MODULES		+= modules/mavlink
+-MODULES		+= modules/gpio_led
+-MODULES 	+= modules/land_detector
+-
+-#
+-# Estimation modules (EKF / other filters)
+-#
+-# Too high RAM usage due to static allocations
+-# MODULES		+= modules/attitude_estimator_ekf
+-MODULES		+= modules/ekf_att_pos_estimator
+-# Since attitude_estimator_ekf is disabled, this app won't be
+-# worthwhile on its own
+-# MODULES		+= modules/position_estimator_inav
+-
+-#
+-# Vehicle Control
+-#
+-MODULES		+= modules/fw_pos_control_l1
+-MODULES		+= modules/fw_att_control
+-MODULES		+= modules/mc_att_control
+-MODULES		+= modules/mc_pos_control
+-
+-#
+-# Logging
+-#
+-MODULES		+= modules/sdlog2
+-
+-#
+-# Unit tests
+-#
+-#MODULES 	+= modules/unit_test
+-#MODULES 	+= modules/commander/commander_tests
+-
+-#
+-# Library modules
+-#
+-MODULES		+= modules/systemlib
+-MODULES		+= modules/systemlib/mixer
+-MODULES		+= modules/controllib
+-MODULES		+= modules/uORB
+-MODULES		+= modules/dataman
+-
+-#
+-# Libraries
+-#
+-LIBRARIES	+= lib/mathlib/CMSIS
+-MODULES		+= lib/mathlib
+-MODULES		+= lib/mathlib/math/filter
+-MODULES		+= lib/ecl
+-MODULES		+= lib/external_lgpl
+-MODULES		+= lib/geo
+-MODULES		+= lib/geo_lookup
+-MODULES		+= lib/conversion
+-MODULES		+= lib/launchdetection
+-MODULES		+= platforms/nuttx
+-
+-#
+-# Demo apps
+-#
+-#MODULES		+= examples/math_demo
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/hello_sky
+-#MODULES		+= examples/px4_simple_app
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/daemon
+-#MODULES		+= examples/px4_daemon_app
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/debug_values
+-#MODULES		+= examples/px4_mavlink_debug
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/example_fixedwing_control
+-#MODULES			+= examples/fixedwing_control
+-
+-# Hardware test
+-#MODULES			+= examples/hwtest
+-
+-# Generate parameter XML file
+-GEN_PARAM_XML = 1
+-
+-#
+-# Transitional support - add commands from the NuttX export archive.
+-#
+-# In general, these should move to modules over time.
+-#
+-# Each entry here is <command>.<priority>.<stacksize>.<entrypoint> but we use a helper macro
+-# to make the table a bit more readable.
+-#
+-define _B
+-	$(strip $1).$(or $(strip $2),SCHED_PRIORITY_DEFAULT).$(or $(strip $3),CONFIG_PTHREAD_STACK_DEFAULT).$(strip $4)
+-endef
+-
+-#                  command                 priority                   stack  entrypoint
+-BUILTIN_COMMANDS := \
+-	$(call _B, sercon,                 ,                          2048,  sercon_main                ) \
+-	$(call _B, serdis,                 ,                          2048,  serdis_main                )
+Index: Firmware-test/makefiles/config_px4fmu-v2_default.mk
+===================================================================
+--- Firmware-test.orig/makefiles/config_px4fmu-v2_default.mk	2015-04-10 09:51:39.957594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,178 +0,0 @@
+-#
+-# Makefile for the px4fmu_default configuration
+-#
+-
+-#
+-# Use the configuration's ROMFS, copy the px4iov2 firmware into
+-# the ROMFS if it's available
+-#
+-ROMFS_ROOT	 = $(PX4_BASE)/ROMFS/px4fmu_common
+-ROMFS_OPTIONAL_FILES = $(PX4_BASE)/Images/px4io-v2_default.bin
+-
+-#
+-# Board support modules
+-#
+-MODULES		+= drivers/device
+-MODULES		+= drivers/stm32
+-MODULES		+= drivers/stm32/adc
+-MODULES		+= drivers/stm32/tone_alarm
+-MODULES		+= drivers/led
+-MODULES		+= drivers/px4fmu
+-MODULES		+= drivers/px4io
+-MODULES		+= drivers/boards/px4fmu-v2
+-MODULES		+= drivers/rgbled
+-MODULES		+= drivers/mpu6000
+-MODULES		+= drivers/lsm303d
+-MODULES		+= drivers/l3gd20
+-MODULES		+= drivers/hmc5883
+-MODULES		+= drivers/ms5611
+-MODULES		+= drivers/mb12xx
+-MODULES		+= drivers/sf0x
+-MODULES		+= drivers/ll40ls
+-MODULES		+= drivers/trone
+-MODULES		+= drivers/gps
+-MODULES		+= drivers/hil
+-MODULES		+= drivers/hott
+-MODULES		+= drivers/hott/hott_telemetry
+-MODULES		+= drivers/hott/hott_sensors
+-MODULES		+= drivers/blinkm
+-MODULES		+= drivers/airspeed
+-MODULES		+= drivers/ets_airspeed
+-MODULES		+= drivers/meas_airspeed
+-MODULES		+= drivers/frsky_telemetry
+-MODULES		+= modules/sensors
+-MODULES		+= drivers/mkblctrl
+-MODULES		+= drivers/px4flow
+-MODULES		+= drivers/oreoled
+-MODULES		+= drivers/gimbal
+-
+-#
+-# System commands
+-#
+-MODULES		+= systemcmds/bl_update
+-MODULES		+= systemcmds/mixer
+-MODULES		+= systemcmds/param
+-MODULES		+= systemcmds/perf
+-MODULES		+= systemcmds/preflight_check
+-MODULES		+= systemcmds/pwm
+-MODULES		+= systemcmds/esc_calib
+-MODULES		+= systemcmds/reboot
+-MODULES		+= systemcmds/top
+-MODULES		+= systemcmds/config
+-MODULES		+= systemcmds/nshterm
+-MODULES		+= systemcmds/mtd
+-MODULES		+= systemcmds/dumpfile
+-MODULES		+= systemcmds/ver
+-
+-#
+-# General system control
+-#
+-MODULES		+= modules/commander
+-MODULES		+= modules/navigator
+-MODULES		+= modules/mavlink
+-MODULES		+= modules/gpio_led
+-MODULES		+= modules/uavcan
+-MODULES 	+= modules/land_detector
+-
+-#
+-# Estimation modules (EKF/ SO3 / other filters)
+-#
+-MODULES		+= modules/attitude_estimator_ekf
+-MODULES		+= modules/ekf_att_pos_estimator
+-MODULES		+= modules/position_estimator_inav
+-
+-#
+-# Vehicle Control
+-#
+-#MODULES		+= modules/segway # XXX Needs GCC 4.7 fix
+-MODULES		+= modules/fw_pos_control_l1
+-MODULES		+= modules/fw_att_control
+-MODULES		+= modules/mc_att_control
+-MODULES		+= modules/mc_pos_control
+-MODULES 	+= modules/vtol_att_control
+-
+-#
+-# Logging
+-#
+-MODULES		+= modules/sdlog2
+-
+-#
+-# Library modules
+-#
+-MODULES		+= modules/systemlib
+-MODULES		+= modules/systemlib/mixer
+-MODULES		+= modules/controllib
+-MODULES		+= modules/uORB
+-MODULES		+= modules/dataman
+-
+-#
+-# Libraries
+-#
+-LIBRARIES	+= lib/mathlib/CMSIS
+-MODULES		+= lib/mathlib
+-MODULES		+= lib/mathlib/math/filter
+-MODULES		+= lib/ecl
+-MODULES		+= lib/external_lgpl
+-MODULES		+= lib/geo
+-MODULES		+= lib/geo_lookup
+-MODULES		+= lib/conversion
+-MODULES		+= lib/launchdetection
+-MODULES		+= platforms/nuttx
+-
+-#
+-# OBC challenge
+-#
+-MODULES		+= modules/bottle_drop
+-
+-#
+-# PX4 flow estimator, good for indoors
+-#
+-MODULES		+= examples/flow_position_estimator
+-
+-#
+-# Rover apps
+-#
+-MODULES		+= examples/rover_steering_control
+-
+-#
+-# Demo apps
+-#
+-#MODULES		+= examples/math_demo
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/hello_sky
+-#MODULES		+= examples/px4_simple_app
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/daemon
+-#MODULES		+= examples/px4_daemon_app
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/debug_values
+-#MODULES		+= examples/px4_mavlink_debug
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/example_fixedwing_control
+-#MODULES			+= examples/fixedwing_control
+-
+-# Hardware test
+-#MODULES			+= examples/hwtest
+-
+-# Generate parameter XML file
+-GEN_PARAM_XML = 1
+-
+-#
+-# Transitional support - add commands from the NuttX export archive.
+-#
+-# In general, these should move to modules over time.
+-#
+-# Each entry here is <command>.<priority>.<stacksize>.<entrypoint> but we use a helper macro
+-# to make the table a bit more readable.
+-#
+-define _B
+-	$(strip $1).$(or $(strip $2),SCHED_PRIORITY_DEFAULT).$(or $(strip $3),CONFIG_PTHREAD_STACK_DEFAULT).$(strip $4)
+-endef
+-
+-#                  command                 priority                   stack  entrypoint
+-BUILTIN_COMMANDS := \
+-	$(call _B, sercon,                 ,                          2048,  sercon_main                ) \
+-	$(call _B, serdis,                 ,                          2048,  serdis_main                )
+Index: Firmware-test/makefiles/config_px4fmu-v2_multiplatform.mk
+===================================================================
+--- Firmware-test.orig/makefiles/config_px4fmu-v2_multiplatform.mk	2015-04-10 09:51:39.957594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,169 +0,0 @@
+-#
+-# Makefile for the px4fmu_default configuration
+-#
+-
+-#
+-# Use the configuration's ROMFS, copy the px4iov2 firmware into
+-# the ROMFS if it's available
+-#
+-ROMFS_ROOT	 = $(PX4_BASE)/ROMFS/px4fmu_common
+-ROMFS_OPTIONAL_FILES = $(PX4_BASE)/Images/px4io-v2_default.bin
+-
+-#
+-# Board support modules
+-#
+-MODULES		+= drivers/device
+-MODULES		+= drivers/stm32
+-MODULES		+= drivers/stm32/adc
+-MODULES		+= drivers/stm32/tone_alarm
+-MODULES		+= drivers/led
+-MODULES		+= drivers/px4fmu
+-MODULES		+= drivers/px4io
+-MODULES		+= drivers/boards/px4fmu-v2
+-MODULES		+= drivers/rgbled
+-MODULES		+= drivers/mpu6000
+-MODULES		+= drivers/lsm303d
+-MODULES		+= drivers/l3gd20
+-MODULES		+= drivers/hmc5883
+-MODULES		+= drivers/ms5611
+-MODULES		+= drivers/mb12xx
+-# MODULES		+= drivers/sf0x
+-MODULES		+= drivers/ll40ls
+-# MODULES		+= drivers/trone
+-MODULES		+= drivers/gps
+-MODULES		+= drivers/hil
+-MODULES		+= drivers/hott
+-MODULES		+= drivers/hott/hott_telemetry
+-MODULES		+= drivers/hott/hott_sensors
+-# MODULES		+= drivers/blinkm
+-MODULES		+= drivers/airspeed
+-MODULES		+= drivers/ets_airspeed
+-MODULES		+= drivers/meas_airspeed
+-MODULES		+= drivers/frsky_telemetry
+-MODULES		+= modules/sensors
+-MODULES		+= drivers/mkblctrl
+-MODULES		+= drivers/px4flow
+-
+-#
+-# System commands
+-#
+-MODULES		+= systemcmds/bl_update
+-MODULES		+= systemcmds/mixer
+-MODULES		+= systemcmds/param
+-MODULES		+= systemcmds/perf
+-MODULES		+= systemcmds/preflight_check
+-MODULES		+= systemcmds/pwm
+-MODULES		+= systemcmds/esc_calib
+-MODULES		+= systemcmds/reboot
+-MODULES		+= systemcmds/top
+-MODULES		+= systemcmds/config
+-MODULES		+= systemcmds/nshterm
+-MODULES		+= systemcmds/mtd
+-MODULES		+= systemcmds/dumpfile
+-MODULES		+= systemcmds/ver
+-
+-#
+-# General system control
+-#
+-MODULES		+= modules/commander
+-MODULES		+= modules/navigator
+-MODULES		+= modules/mavlink
+-MODULES		+= modules/gpio_led
+-# MODULES		+= modules/uavcan
+-
+-#
+-# Estimation modules (EKF/ SO3 / other filters)
+-#
+-MODULES		+= modules/attitude_estimator_ekf
+-MODULES		+= modules/ekf_att_pos_estimator
+-MODULES		+= modules/position_estimator_inav
+-
+-#
+-# Vehicle Control
+-#
+-#MODULES		+= modules/segway # XXX Needs GCC 4.7 fix
+-#MODULES		+= modules/fw_pos_control_l1
+-#MODULES		+= modules/fw_att_control
+-# MODULES		+= modules/mc_att_control
+-MODULES		+= modules/mc_att_control_multiplatform
+-MODULES		+= examples/subscriber
+-MODULES		+= examples/publisher
+-# MODULES		+= modules/mc_pos_control
+-MODULES		+= modules/mc_pos_control_multiplatform
+-MODULES 	+= modules/vtol_att_control
+-
+-#
+-# Logging
+-#
+-MODULES		+= modules/sdlog2
+-
+-#
+-# Library modules
+-#
+-MODULES		+= modules/systemlib
+-MODULES		+= modules/systemlib/mixer
+-MODULES		+= modules/controllib
+-MODULES		+= modules/uORB
+-MODULES		+= modules/dataman
+-
+-#
+-# Libraries
+-#
+-LIBRARIES	+= lib/mathlib/CMSIS
+-MODULES		+= lib/mathlib
+-MODULES		+= lib/mathlib/math/filter
+-MODULES		+= lib/ecl
+-MODULES		+= lib/external_lgpl
+-MODULES		+= lib/geo
+-MODULES		+= lib/geo_lookup
+-MODULES		+= lib/conversion
+-MODULES		+= lib/launchdetection
+-MODULES		+= platforms/nuttx
+-
+-#
+-# OBC challenge
+-#
+-MODULES		+= modules/bottle_drop
+-
+-#
+-# Demo apps
+-#
+-#MODULES		+= examples/math_demo
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/hello_sky
+-#MODULES		+= examples/px4_simple_app
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/daemon
+-#MODULES		+= examples/px4_daemon_app
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/debug_values
+-#MODULES		+= examples/px4_mavlink_debug
+-
+-# Tutorial code from
+-# https://pixhawk.ethz.ch/px4/dev/example_fixedwing_control
+-#MODULES			+= examples/fixedwing_control
+-
+-# Hardware test
+-#MODULES			+= examples/hwtest
+-
+-# Generate parameter XML file
+-GEN_PARAM_XML = 1
+-
+-#
+-# Transitional support - add commands from the NuttX export archive.
+-#
+-# In general, these should move to modules over time.
+-#
+-# Each entry here is <command>.<priority>.<stacksize>.<entrypoint> but we use a helper macro
+-# to make the table a bit more readable.
+-#
+-define _B
+-	$(strip $1).$(or $(strip $2),SCHED_PRIORITY_DEFAULT).$(or $(strip $3),CONFIG_PTHREAD_STACK_DEFAULT).$(strip $4)
+-endef
+-
+-#                  command                 priority                   stack  entrypoint
+-BUILTIN_COMMANDS := \
+-	$(call _B, sercon,                 ,                          2048,  sercon_main                ) \
+-	$(call _B, serdis,                 ,                          2048,  serdis_main                )
+Index: Firmware-test/makefiles/config_px4fmu-v2_test.mk
+===================================================================
+--- Firmware-test.orig/makefiles/config_px4fmu-v2_test.mk	2015-04-10 09:51:39.957594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,118 +0,0 @@
+-#
+-# Makefile for the px4fmu_default configuration
+-#
+-
+-#
+-# Use the configuration's ROMFS.
+-#
+-ROMFS_ROOT	 = $(PX4_BASE)/ROMFS/px4fmu_test
+-ROMFS_OPTIONAL_FILES = $(PX4_BASE)/Images/px4io-v2_default.bin
+-
+-#
+-# Board support modules
+-#
+-MODULES		+= drivers/device
+-MODULES		+= drivers/stm32
+-MODULES		+= drivers/stm32/adc
+-MODULES		+= drivers/stm32/tone_alarm
+-MODULES		+= drivers/led
+-MODULES		+= drivers/boards/px4fmu-v2
+-MODULES		+= drivers/px4io
+-MODULES		+= drivers/rgbled
+-MODULES		+= drivers/mpu6000
+-MODULES		+= drivers/lsm303d
+-MODULES		+= drivers/l3gd20
+-MODULES		+= drivers/hmc5883
+-MODULES		+= drivers/ms5611
+-MODULES		+= drivers/pca8574
+-MODULES		+= drivers/roboclaw
+-MODULES		+= drivers/airspeed
+-MODULES		+= drivers/ets_airspeed
+-MODULES		+= drivers/meas_airspeed
+-MODULES		+= systemcmds/perf
+-MODULES		+= systemcmds/reboot
+-MODULES		+= systemcmds/tests
+-MODULES		+= systemcmds/nshterm
+-MODULES		+= systemcmds/mtd
+-MODULES		+= systemcmds/ver
+-MODULES		+= systemcmds/top
+-MODULES		+= modules/sensors
+-
+-#
+-# System commands
+-#
+-MODULES		+= systemcmds/bl_update
+-MODULES		+= systemcmds/mixer
+-MODULES		+= systemcmds/param
+-MODULES		+= systemcmds/perf
+-MODULES		+= systemcmds/preflight_check
+-MODULES		+= systemcmds/pwm
+-MODULES		+= systemcmds/esc_calib
+-MODULES		+= systemcmds/reboot
+-MODULES		+= systemcmds/top
+-MODULES		+= systemcmds/config
+-MODULES		+= systemcmds/nshterm
+-MODULES		+= systemcmds/mtd
+-MODULES		+= systemcmds/dumpfile
+-MODULES		+= systemcmds/ver
+-
+-#
+-# Example modules
+-#
+-MODULES		+= examples/matlab_csv_serial
+-MODULES		+= examples/subscriber
+-MODULES		+= examples/publisher
+-
+-#
+-# Library modules
+-#
+-MODULES		+= modules/systemlib
+-MODULES		+= modules/systemlib/mixer
+-MODULES		+= modules/uORB
+-LIBRARIES	+= lib/mathlib/CMSIS
+-MODULES		+= lib/mathlib
+-MODULES		+= lib/mathlib/math/filter
+-MODULES		+= lib/conversion
+-MODULES		+= platforms/nuttx
+-
+-#
+-# Example modules to test-build
+-#
+-MODULES		+= examples/flow_position_estimator
+-MODULES		+= examples/fixedwing_control
+-MODULES		+= examples/hwtest
+-MODULES		+= examples/matlab_csv_serial
+-MODULES		+= examples/px4_daemon_app
+-MODULES		+= examples/px4_mavlink_debug
+-MODULES		+= examples/px4_simple_app
+-
+-#
+-# Drivers / modules to test build, but not useful for test environment
+-#
+-MODULES		+= modules/attitude_estimator_so3
+-MODULES		+= drivers/pca8574
+-
+-#
+-# Tests
+-#
+-
+-MODULES 	+= modules/unit_test
+-MODULES		+= modules/mavlink/mavlink_tests
+-MODULES 	+= modules/commander/commander_tests
+-
+-#
+-# Transitional support - add commands from the NuttX export archive.
+-#
+-# In general, these should move to modules over time.
+-#
+-# Each entry here is <command>.<priority>.<stacksize>.<entrypoint> but we use a helper macro
+-# to make the table a bit more readable.
+-#
+-define _B
+-	$(strip $1).$(or $(strip $2),SCHED_PRIORITY_DEFAULT).$(or $(strip $3),CONFIG_PTHREAD_STACK_DEFAULT).$(strip $4)
+-endef
+-
+-#                  command                 priority                   stack  entrypoint
+-BUILTIN_COMMANDS := \
+-	$(call _B, sercon,                 ,                          2048,  sercon_main                ) \
+-	$(call _B, serdis,                 ,                          2048,  serdis_main                )
+Index: Firmware-test/makefiles/config_px4io-v1_default.mk
+===================================================================
+--- Firmware-test.orig/makefiles/config_px4io-v1_default.mk	2015-04-10 09:51:39.957594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,10 +0,0 @@
+-#
+-# Makefile for the px4io_default configuration
+-#
+-
+-#
+-# Board support modules
+-#
+-MODULES		+= drivers/stm32
+-MODULES		+= drivers/boards/px4io-v1
+-MODULES		+= modules/px4iofirmware
+\ No newline at end of file
+Index: Firmware-test/makefiles/config_px4io-v2_default.mk
+===================================================================
+--- Firmware-test.orig/makefiles/config_px4io-v2_default.mk	2015-04-10 09:51:39.957594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,10 +0,0 @@
+-#
+-# Makefile for the px4iov2_default configuration
+-#
+-
+-#
+-# Board support modules
+-#
+-MODULES		+= drivers/stm32
+-MODULES		+= drivers/boards/px4io-v2
+-MODULES		+= modules/px4iofirmware
+\ No newline at end of file
+Index: Firmware-test/makefiles/gumstix-aerocore.cfg
+===================================================================
+--- Firmware-test.orig/makefiles/gumstix-aerocore.cfg	2015-04-10 09:51:39.957594877 +0530
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,10 +0,0 @@
+-# JTAG for the STM32F4x chip used on the Gumstix AeroCore is available on
+-# the first interface of a Quad FTDI chip.  nTRST is bit 4.
+-interface ftdi
+-ftdi_vid_pid 0x0403 0x6011
+-
+-ftdi_layout_init 0x0000 0x001b
+-ftdi_layout_signal nTRST -data 0x0010
+-
+-source [find target/stm32f4x.cfg]
+-reset_config trst_only

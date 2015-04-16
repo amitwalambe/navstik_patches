@@ -1,0 +1,1963 @@
+--- Firmware/ROMFS/navstik_common/init.d/1000_rc_fw_easystar.hil	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/1000_rc_fw_easystar.hil	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,14 @@
++#!nsh
++#
++# HILStar / X-Plane
++#
++# Lorenz Meier <lm@inf.ethz.ch>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++echo "X Plane HIL starting.."
++
++set HIL yes
++
++set MIXER FMU_AERT
+--- Firmware/ROMFS/navstik_common/init.d/10015_tbs_discovery	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/10015_tbs_discovery	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,29 @@
++#!nsh
++#
++# Team Blacksheep Discovery Quadcopter
++#
++# Anton Babushkin <anton.babushkin@me.com>, Simon Wilks <sjwilks@gmail.com>, Thomas Gubler <thomasgubler@gmail.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	# TODO review MC_YAWRATE_I
++	param set MC_ROLL_P 8.0
++	param set MC_ROLLRATE_P 0.07
++	param set MC_ROLLRATE_I 0.05
++	param set MC_ROLLRATE_D 0.0017
++	param set MC_PITCH_P 8.0
++	param set MC_PITCHRATE_P 0.1
++	param set MC_PITCHRATE_I 0.1
++	param set MC_PITCHRATE_D 0.0025
++	param set MC_YAW_P 2.8
++	param set MC_YAWRATE_P 0.28
++	param set MC_YAWRATE_I 0.1
++	param set MC_YAWRATE_D 0.0
++fi
++
++set MIXER FMU_quad_w
++
++set PWM_OUTPUTS 1234
+--- Firmware/ROMFS/navstik_common/init.d/10016_3dr_iris	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/10016_3dr_iris	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,35 @@
++#!nsh
++#
++# 3DR Iris Quadcopter
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	# TODO tune roll/pitch separately
++	param set MC_ROLL_P 7.0
++	param set MC_ROLLRATE_P 0.13
++	param set MC_ROLLRATE_I 0.0
++	param set MC_ROLLRATE_D 0.004
++	param set MC_PITCH_P 7.0
++	param set MC_PITCHRATE_P 0.13
++	param set MC_PITCHRATE_I 0.0
++	param set MC_PITCHRATE_D 0.004
++	param set MC_YAW_P 2.5
++	param set MC_YAWRATE_P 0.25
++	param set MC_YAWRATE_I 0.25
++	param set MC_YAWRATE_D 0.0
++
++	param set BAT_V_SCALING 0.00989
++	param set BAT_C_SCALING 0.0124
++fi
++
++set MIXER FMU_quad_w
++
++set PWM_OUTPUTS 1234
++
++set PWM_MIN 1200
++set PWM_MAX 1950
+--- Firmware/ROMFS/navstik_common/init.d/10017_steadidrone_qu4d	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/10017_steadidrone_qu4d	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,35 @@
++#!nsh
++#
++# Steadidrone QU4D
++#
++# Thomas Gubler <thomasgubler@gmail.com>
++# Lorenz Meier <lm@inf.ethz.ch>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	# TODO tune roll/pitch separately
++	param set MC_ROLL_P 7.0
++	param set MC_ROLLRATE_P 0.13
++	param set MC_ROLLRATE_I 0.0
++	param set MC_ROLLRATE_D 0.004
++	param set MC_PITCH_P 7.0
++	param set MC_PITCHRATE_P 0.13
++	param set MC_PITCHRATE_I 0.0
++	param set MC_PITCHRATE_D 0.004
++	param set MC_YAW_P 0.5
++	param set MC_YAWRATE_P 0.2
++	param set MC_YAWRATE_I 0.0
++	param set MC_YAWRATE_D 0.0
++
++	param set BAT_N_CELLS 4
++fi
++
++set MIXER FMU_quad_w
++
++set PWM_MIN 1210
++set PWM_MAX 2100
++
++set PWM_OUTPUTS 1234
+--- Firmware/ROMFS/navstik_common/init.d/1001_rc_quad_x.hil	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/1001_rc_quad_x.hil	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# HIL Quadcopter X
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_quad_x
++
++set HIL yes
+--- Firmware/ROMFS/navstik_common/init.d/1003_rc_quad_+.hil	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/1003_rc_quad_+.hil	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# HIL Quadcopter +
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_quad_+
++
++set HIL yes
+\ No newline at end of file
+--- Firmware/ROMFS/navstik_common/init.d/1004_rc_fw_Rascal110.hil	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/1004_rc_fw_Rascal110.hil	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,14 @@
++#!nsh
++#
++# HIL Rascal 110 (Flightgear)
++#
++# Thomas Gubler <thomasgubler@gmail.com>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++echo "HIL Rascal 110 starting.."
++
++set HIL yes
++
++set MIXER FMU_AERT
+--- Firmware/ROMFS/navstik_common/init.d/1005_rc_fw_Malolo1.hil	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/1005_rc_fw_Malolo1.hil	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,38 @@
++#!nsh
++#
++# HIL Malolo 1 (Flightgear)
++#
++# Thomas Gubler <thomasgubler@gmail.com>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	param set FW_AIRSPD_MIN 12
++	param set FW_AIRSPD_TRIM 25
++	param set FW_AIRSPD_MAX 40
++	param set FW_ATT_TC 0.3
++	param set FW_L1_DAMPING 0.74
++	param set FW_L1_PERIOD 15
++	param set FW_PR_FF 0.8
++	param set FW_PR_I 0.05
++	param set FW_PR_IMAX 0.2
++	param set FW_PR_P 0.1
++	param set FW_P_ROLLFF 0
++	param set FW_RR_FF 0.6
++	param set FW_RR_I 0.02
++	param set FW_RR_IMAX 0.2
++	param set FW_RR_P 0.1
++	param set FW_R_LIM 45
++	param set FW_R_RMAX 0
++	param set FW_YR_FF 0.0
++	param set FW_YR_I 0
++	param set FW_YR_IMAX 0.2
++	param set FW_YR_P 0.0
++fi
++
++set HIL yes
++
++# Set the AERT mixer for HIL (even if the malolo is a flying wing)
++set MIXER FMU_AERT
+--- Firmware/ROMFS/navstik_common/init.d/11001_hexa_cox	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/11001_hexa_cox	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,13 @@
++#!nsh
++#
++# Generic 10" Hexa coaxial geometry
++#
++# Lorenz Meier <lm@inf.ethz.ch>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_hexa_cox
++
++# We only can run one channel group with one rate, so set all 8 channels
++set PWM_OUTPUTS 12345678
+--- Firmware/ROMFS/navstik_common/init.d/12001_octo_cox	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/12001_octo_cox	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# Generic 10" Octo coaxial geometry
++#
++# Lorenz Meier <lm@inf.ethz.ch>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_octo_cox
++
++set PWM_OUTPUTS 12345678
+--- Firmware/ROMFS/navstik_common/init.d/2100_mpx_easystar	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/2100_mpx_easystar	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,8 @@
++#!nsh
++#
++# MPX EasyStar Plane
++#
++
++sh /etc/init.d/rc.fw_defaults
++ 
++set MIXER easystar
+--- Firmware/ROMFS/navstik_common/init.d/2101_hk_bixler	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/2101_hk_bixler	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,5 @@
++#!nsh
++
++sh /etc/init.d/rc.fw_defaults
++
++set MIXER FMU_AERT
+\ No newline at end of file
+--- Firmware/ROMFS/navstik_common/init.d/2102_3dr_skywalker	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/2102_3dr_skywalker	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,5 @@
++#!nsh
++
++sh /etc/init.d/rc.fw_defaults
++
++set MIXER FMU_AERT
+\ No newline at end of file
+--- Firmware/ROMFS/navstik_common/init.d/2103_skyhunter_1800	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/2103_skyhunter_1800	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,5 @@
++#!nsh
++
++sh /etc/init.d/rc.fw_defaults
++
++set MIXER FMU_AET
+--- Firmware/ROMFS/navstik_common/init.d/3030_io_camflyer	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/3030_io_camflyer	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,5 @@
++#!nsh
++
++sh /etc/init.d/rc.fw_defaults
++
++set MIXER FMU_Q
+--- Firmware/ROMFS/navstik_common/init.d/3031_phantom	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/3031_phantom	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,42 @@
++#!nsh
++#
++# Phantom FPV Flying Wing
++#
++# Simon Wilks <sjwilks@gmail.com>, Thomas Gubler <thomasgubler@gmail.com>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	param set FW_AIRSPD_MIN 13
++	param set FW_AIRSPD_TRIM 15
++	param set FW_AIRSPD_MAX 25
++	param set FW_ATT_TC 0.3
++	param set FW_L1_DAMPING 0.75
++	param set FW_L1_PERIOD 15
++	param set FW_PR_FF 0.2
++	param set FW_PR_I 0.005
++	param set FW_PR_IMAX 0.2
++	param set FW_PR_P 0.03
++	param set FW_P_LIM_MAX 50
++	param set FW_P_LIM_MIN -50
++	param set FW_P_RMAX_NEG 0
++	param set FW_P_RMAX_POS 0
++	param set FW_P_ROLLFF 1
++	param set FW_RR_FF 0.5
++	param set FW_RR_I 0.02
++	param set FW_RR_IMAX 0.2
++	param set FW_RR_P 0.08
++	param set FW_R_LIM 50
++	param set FW_R_RMAX 0
++	# Bottom of bay and nominal zero-pitch attitude differ
++	# the payload bay is pitched up about 7 degrees
++	param set SENS_BOARD_Y_OFF 7.0
++fi
++
++set MIXER phantom
++
++# Provide ESC a constant 1000 us pulse
++set PWM_OUTPUTS 4
++set PWM_DISARMED 1000
+--- Firmware/ROMFS/navstik_common/init.d/3032_skywalker_x5	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/3032_skywalker_x5	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,35 @@
++#!nsh
++#
++# Skywalker X5 Flying Wing
++#
++# Thomas Gubler <thomasgubler@gmail.com>, Julian Oes <joes@student.ethz.ch>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	param set FW_AIRSPD_MIN 15
++	param set FW_AIRSPD_TRIM 20
++	param set FW_AIRSPD_MAX 40
++	param set FW_ATT_TC 0.3
++	param set FW_L1_DAMPING 0.74
++	param set FW_L1_PERIOD 15
++	param set FW_PR_FF 0.3
++	param set FW_PR_I 0
++	param set FW_PR_IMAX 0.2
++	param set FW_PR_P 0.03
++	param set FW_P_LIM_MAX 45
++	param set FW_P_LIM_MIN -45
++	param set FW_P_RMAX_NEG 0
++	param set FW_P_RMAX_POS 0
++	param set FW_P_ROLLFF 1
++	param set FW_RR_FF 0.3
++	param set FW_RR_I 0
++	param set FW_RR_IMAX 0.2
++	param set FW_RR_P 0.03
++	param set FW_R_LIM 60
++	param set FW_R_RMAX 0
++fi
++
++set MIXER FMU_X5
+--- Firmware/ROMFS/navstik_common/init.d/3033_wingwing	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/3033_wingwing	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,48 @@
++#!nsh
++#
++# Wing Wing (aka Z-84) Flying Wing
++#
++# Simon Wilks <sjwilks@gmail.com>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	param set BAT_N_CELLS 2
++	param set FW_AIRSPD_MAX 15
++	param set FW_AIRSPD_MIN 10
++	param set FW_AIRSPD_TRIM 13
++	param set FW_ATT_TC 0.3
++	param set FW_L1_DAMPING 0.74
++	param set FW_L1_PERIOD 16
++	param set FW_LND_ANG 15
++	param set FW_LND_FLALT 5
++	param set FW_LND_HHDIST 15
++	param set FW_LND_HVIRT 13
++	param set FW_LND_TLALT 5
++	param set FW_THR_LND_MAX 0
++	param set FW_PR_FF 0.35
++	param set FW_PR_I 0.005
++	param set FW_PR_IMAX 0.4
++	param set FW_PR_P 0.08
++	param set FW_RR_FF 0.6
++	param set FW_RR_I 0.005
++	param set FW_RR_IMAX 0.2
++	param set FW_RR_P 0.04
++	param set MT_TKF_PIT_MAX 30.0
++	param set MT_ACC_D 0.2
++	param set MT_ACC_P 0.6
++	param set MT_A_LP 0.5
++	param set MT_PIT_OFF 0.1
++	param set MT_PIT_I 0.1
++	param set MT_THR_OFF 0.65
++	param set MT_THR_I 0.35
++	param set MT_THR_P  0.2
++	param set MT_THR_FF 1.5
++fi
++
++set MIXER wingwing
++# Provide ESC a constant 1000 us pulse
++set PWM_OUTPUTS 4
++set PWM_DISARMED 1000
+--- Firmware/ROMFS/navstik_common/init.d/3034_fx79	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/3034_fx79	2015-04-07 14:57:40.242235564 +0530
+@@ -0,0 +1,10 @@
++#!nsh
++#
++# FX-79 Buffalo Flying Wing
++#
++# Simon Wilks <sjwilks@gmail.com>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++set MIXER FMU_FX79
+--- Firmware/ROMFS/navstik_common/init.d/3035_viper	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/3035_viper	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# Viper
++#
++# Simon Wilks <sjwilks@gmail.com>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++set MIXER Viper
++
++set FAILSAFE "-c567 -p 1000"
+--- Firmware/ROMFS/navstik_common/init.d/3100_tbs_caipirinha	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/3100_tbs_caipirinha	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,38 @@
++#!nsh
++#
++# TBS Caipirinha Flying Wing
++#
++# Thomas Gubler <thomasgubler@gmail.com>
++#
++
++sh /etc/init.d/rc.fw_defaults
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	
++	# TODO: these are the X5 default parameters, update them to the caipi
++
++	param set FW_AIRSPD_MIN 15
++	param set FW_AIRSPD_TRIM 20
++	param set FW_AIRSPD_MAX 40
++	param set FW_ATT_TC 0.3
++	param set FW_L1_DAMPING 0.74
++	param set FW_L1_PERIOD 15
++	param set FW_PR_FF 0.3
++	param set FW_PR_I 0
++	param set FW_PR_IMAX 0.2
++	param set FW_PR_P 0.03
++	param set FW_P_LIM_MAX 45
++	param set FW_P_LIM_MIN -45
++	param set FW_P_RMAX_NEG 0
++	param set FW_P_RMAX_POS 0
++	param set FW_P_ROLLFF 0
++	param set FW_RR_FF 0.3
++	param set FW_RR_I 0
++	param set FW_RR_IMAX 0.2
++	param set FW_RR_P 0.03
++	param set FW_R_LIM 60
++	param set FW_R_RMAX 0
++fi
++
++set MIXER FMU_Q
+--- Firmware/ROMFS/navstik_common/init.d/4001_quad_x	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/4001_quad_x	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# Generic 10" Quad X geometry
++#
++# Lorenz Meier <lm@inf.ethz.ch>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_quad_x
++
++set PWM_OUTPUTS 123456
+--- Firmware/ROMFS/navstik_common/init.d/4008_ardrone	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/4008_ardrone	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,38 @@
++#!nsh
++#
++# ARDrone
++#
++
++echo "[init] 4008_ardrone: PX4FMU on PX4IOAR carrier board"
++
++# Just use the default multicopter settings.
++sh /etc/init.d/rc.mc_defaults
++
++#
++# Load default params for this platform
++#
++if [ $DO_AUTOCONFIG == yes ]
++then
++    # Set all params here, then disable autoconfig
++    param set MC_ROLL_P 6.0
++    param set MC_ROLLRATE_P 0.14
++    param set MC_ROLLRATE_I 0.1
++    param set MC_ROLLRATE_D 0.002
++    param set MC_PITCH_P 6.0
++    param set MC_PITCHRATE_P 0.14
++    param set MC_PITCHRATE_I 0.1
++    param set MC_PITCHRATE_D 0.002
++    param set MC_YAW_P 2.0
++    param set MC_YAWRATE_P 0.2
++    param set MC_YAWRATE_I 0.2
++    param set MC_YAWRATE_D 0.0
++    param set MC_YAW_FF 0.8
++    
++    param set BAT_V_SCALING 0.00838095238
++fi
++
++set OUTPUT_MODE ardrone
++set USE_IO no
++set MIXER skip
++# set MAV_TYPE because no specific mixer is set
++set MAV_TYPE 2
+--- Firmware/ROMFS/navstik_common/init.d/4010_dji_f330	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/4010_dji_f330	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,27 @@
++#!nsh
++#
++# DJI Flame Wheel F330 Quadcopter
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/4001_quad_x
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	param set MC_ROLL_P 7.0
++	param set MC_ROLLRATE_P 0.1
++	param set MC_ROLLRATE_I 0.0
++	param set MC_ROLLRATE_D 0.003
++	param set MC_PITCH_P 7.0
++	param set MC_PITCHRATE_P 0.1
++	param set MC_PITCHRATE_I 0.0
++	param set MC_PITCHRATE_D 0.003
++	param set MC_YAW_P 2.8
++	param set MC_YAWRATE_P 0.2
++	param set MC_YAWRATE_I 0.1
++	param set MC_YAWRATE_D 0.0
++fi
++
++set PWM_MIN 1200
++set PWM_MAX 1950
+--- Firmware/ROMFS/navstik_common/init.d/4011_dji_f450	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/4011_dji_f450	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,26 @@
++#!nsh
++#
++# DJI Flame Wheel F450 Quadcopter
++#
++# Lorenz Meier <lm@inf.ethz.ch>
++#
++
++sh /etc/init.d/4001_quad_x
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	# TODO REVIEW
++	param set MC_ROLL_P 7.0
++	param set MC_ROLLRATE_P 0.1
++	param set MC_ROLLRATE_I 0.0
++	param set MC_ROLLRATE_D 0.003
++	param set MC_PITCH_P 7.0
++	param set MC_PITCHRATE_P 0.1
++	param set MC_PITCHRATE_I 0.0
++	param set MC_PITCHRATE_D 0.003
++	param set MC_YAW_P 2.8
++	param set MC_YAWRATE_P 0.2
++	param set MC_YAWRATE_I 0.1
++	param set MC_YAWRATE_D 0.0
++fi
++
+--- Firmware/ROMFS/navstik_common/init.d/4012_quad_x_can	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/4012_quad_x_can	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,27 @@
++#!nsh
++#
++# F450-sized quadrotor with CAN
++#
++# Lorenz Meier <lm@inf.ethz.ch>
++#
++
++sh /etc/init.d/4001_quad_x
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	# TODO REVIEW
++	param set MC_ROLL_P 7.0
++	param set MC_ROLLRATE_P 0.1
++	param set MC_ROLLRATE_I 0.0
++	param set MC_ROLLRATE_D 0.003
++	param set MC_PITCH_P 7.0
++	param set MC_PITCHRATE_P 0.1
++	param set MC_PITCHRATE_I 0.0
++	param set MC_PITCHRATE_D 0.003
++	param set MC_YAW_P 2.8
++	param set MC_YAWRATE_P 0.2
++	param set MC_YAWRATE_I 0.0
++	param set MC_YAWRATE_D 0.0
++fi
++
++set OUTPUT_MODE uavcan_esc
+--- Firmware/ROMFS/navstik_common/init.d/4020_hk_micro_pcb	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/4020_hk_micro_pcb	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,28 @@
++#!nsh
++#
++# Hobbyking Micro Integrated PCB Quadcopter
++# with SimonK ESC firmware and Mystery A1510 motors
++#
++# Thomas Gubler <thomasgubler@gmail.com>
++#
++echo "HK Micro PCB Quad"
++
++sh /etc/init.d/4001_quad_x
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	param set MC_ROLL_P 7.0
++	param set MC_ROLLRATE_P 0.1
++	param set MC_ROLLRATE_I 0.0
++	param set MC_ROLLRATE_D 0.003
++	param set MC_PITCH_P 7.0
++	param set MC_PITCHRATE_P 0.1
++	param set MC_PITCHRATE_I 0.0
++	param set MC_PITCHRATE_D 0.003
++	param set MC_YAW_P 2.8
++	param set MC_YAWRATE_P 0.2
++	param set MC_YAWRATE_I 0.0
++	param set MC_YAWRATE_D 0.0
++fi
++
++set PWM_MIN 1200
+--- Firmware/ROMFS/navstik_common/init.d/5001_quad_+	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/5001_quad_+	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# Generic 10" Quad + geometry
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_quad_+
++
++set PWM_OUTPUTS 1234
+--- Firmware/ROMFS/navstik_common/init.d/6001_hexa_x	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/6001_hexa_x	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,13 @@
++#!nsh
++#
++# Generic 10" Hexa X geometry
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_hexa_x
++
++# We only can run one channel group with one rate, so set all 8 channels
++set PWM_OUTPUTS 12345678
+--- Firmware/ROMFS/navstik_common/init.d/7001_hexa_+	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/7001_hexa_+	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,13 @@
++#!nsh
++#
++# Generic 10" Hexa + geometry
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_hexa_+
++
++# We only can run one channel group with one rate, so set all 8 channels
++set PWM_OUTPUTS 12345678
+--- Firmware/ROMFS/navstik_common/init.d/8001_octo_x	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/8001_octo_x	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# Generic 10" Octo X geometry
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_octo_x
++
++set PWM_OUTPUTS 12345678
+--- Firmware/ROMFS/navstik_common/init.d/9001_octo_+	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/9001_octo_+	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# Generic 10" Octo + geometry
++#
++# Anton Babushkin <anton.babushkin@me.com>
++#
++
++sh /etc/init.d/rc.mc_defaults
++
++set MIXER FMU_octo_+
++
++set PWM_OUTPUTS 12345678
+\ No newline at end of file
+--- Firmware/ROMFS/navstik_common/init.d/rc.autostart	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.autostart	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,234 @@
++#
++# Check if auto-setup from one of the standard scripts is wanted
++# SYS_AUTOSTART = 0 means no autostart (default)
++#
++# AUTOSTART PARTITION:
++#  0   	..	 999		Reserved (historical)
++#  1000	..	 1999		Simulation setups
++#  2000	..	 2999		Standard planes
++#  3000	..	 3999		Flying wing
++#  4000	..	 4999		Quad X
++#  5000	..	 5999		Quad +
++#  6000	..	 6999		Hexa X
++#  7000	..	 7999		Hexa +
++#  8000	..	 8999		Octo X
++#  9000	..	 9999		Octo +
++# 10000	..	10999		Wide arm / H frame
++# 11000	..	11999		Hexa Cox
++# 12000	..	12999		Octo Cox
++
++#
++# Simulation setups
++#
++
++if param compare SYS_AUTOSTART 1000
++then
++	sh /etc/init.d/1000_rc_fw_easystar.hil
++fi
++
++if param compare SYS_AUTOSTART 1001
++then
++	sh /etc/init.d/1001_rc_quad_x.hil
++fi
++
++if param compare SYS_AUTOSTART 1003
++then
++	sh /etc/init.d/1003_rc_quad_+.hil
++fi
++
++if param compare SYS_AUTOSTART 1004
++then
++	sh /etc/init.d/1004_rc_fw_Rascal110.hil
++fi
++
++if param compare SYS_AUTOSTART 1005
++then
++	sh /etc/init.d/1005_rc_fw_Malolo1.hil
++fi
++
++#
++# Standard plane
++#
++
++if param compare SYS_AUTOSTART 2100 100
++then
++	sh /etc/init.d/2100_mpx_easystar
++	set MODE custom
++fi
++
++if param compare SYS_AUTOSTART 2101 101
++then
++	sh /etc/init.d/2101_hk_bixler
++	set MODE custom
++fi
++
++if param compare SYS_AUTOSTART 2102 102
++then
++	sh /etc/init.d/2102_3dr_skywalker
++	set MODE custom
++fi
++
++if param compare SYS_AUTOSTART 2103 103
++then
++        sh /etc/init.d/2103_skyhunter_1800
++        set MODE custom
++fi
++
++#
++# Flying wing
++#
++
++if param compare SYS_AUTOSTART 3030 30
++then
++	sh /etc/init.d/3030_io_camflyer
++fi
++
++if param compare SYS_AUTOSTART 3031 31
++then
++	sh /etc/init.d/3031_phantom
++fi
++
++if param compare SYS_AUTOSTART 3032 32
++then
++	sh /etc/init.d/3032_skywalker_x5
++fi
++
++if param compare SYS_AUTOSTART 3033 33
++then
++	sh /etc/init.d/3033_wingwing
++fi
++
++if param compare SYS_AUTOSTART 3034 34
++then
++	sh /etc/init.d/3034_fx79
++fi
++
++if param compare SYS_AUTOSTART 3035 35
++then
++	sh /etc/init.d/3035_viper
++fi
++
++if param compare SYS_AUTOSTART 3100
++then
++	sh /etc/init.d/3100_tbs_caipirinha
++fi
++
++#
++# Quad X
++#
++
++if param compare SYS_AUTOSTART 4001
++then
++	sh /etc/init.d/4001_quad_x
++fi
++
++#
++# ARDrone
++#
++
++if param compare SYS_AUTOSTART 4008 8
++then
++    sh /etc/init.d/4008_ardrone
++fi
++
++if param compare SYS_AUTOSTART 4010 10
++then
++	sh /etc/init.d/4010_dji_f330
++fi
++
++if param compare SYS_AUTOSTART 4011 11
++then
++	sh /etc/init.d/4011_dji_f450
++fi
++
++if param compare SYS_AUTOSTART 4012
++then
++	sh /etc/init.d/4012_quad_x_can
++fi
++
++if param compare SYS_AUTOSTART 4020
++then
++	sh /etc/init.d/4020_hk_micro_pcb
++fi
++
++#
++# Quad +
++#
++
++if param compare SYS_AUTOSTART 5001
++then
++	sh /etc/init.d/5001_quad_+
++fi
++
++#
++# Hexa X
++#
++
++if param compare SYS_AUTOSTART 6001
++then
++	sh /etc/init.d/6001_hexa_x
++fi
++
++#
++# Hexa +
++#
++
++if param compare SYS_AUTOSTART 7001
++then
++	sh /etc/init.d/7001_hexa_+
++fi
++
++#
++# Octo X
++#
++
++if param compare SYS_AUTOSTART 8001
++then
++	sh /etc/init.d/8001_octo_x
++fi
++
++#
++# Octo +
++#
++
++if param compare SYS_AUTOSTART 9001
++then
++	sh /etc/init.d/9001_octo_+
++fi
++
++#
++# Wide arm / H frame
++#
++
++if param compare SYS_AUTOSTART 10015 15
++then
++	sh /etc/init.d/10015_tbs_discovery
++fi
++
++if param compare SYS_AUTOSTART 10016 16
++then
++	sh /etc/init.d/10016_3dr_iris
++fi
++
++if param compare SYS_AUTOSTART 10017
++then
++	sh /etc/init.d/10017_steadidrone_qu4d
++fi
++
++#
++# Hexa Coaxial
++#
++
++if param compare SYS_AUTOSTART 11001
++then
++	sh /etc/init.d/11001_hexa_cox
++fi
++
++#
++# Octo Coaxial
++#
++
++if param compare SYS_AUTOSTART 12001
++then
++	sh /etc/init.d/12001_octo_cox
++fi
+--- Firmware/ROMFS/navstik_common/init.d/rc.fw_apps	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.fw_apps	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,15 @@
++#!nsh
++#
++# Standard apps for fixed wing
++#
++
++#
++# Start the attitude and position estimator
++#
++ekf_att_pos_estimator start
++
++#
++# Start attitude controller
++#
++fw_att_control start
++fw_pos_control_l1 start
+--- Firmware/ROMFS/navstik_common/init.d/rc.fw_defaults	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.fw_defaults	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,18 @@
++#!nsh
++
++set VEHICLE_TYPE fw
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++#
++# Default parameters for FW
++#
++	param set NAV_LAND_ALT 90
++	param set NAV_RTL_ALT 100
++	param set NAV_RTL_LAND_T -1
++	param set NAV_ACCEPT_RAD 50
++	param set FW_T_HRATE_P 0.01
++	param set FW_T_RLL2THR 15
++	param set FW_T_SRATE_P 0.01
++	param set FW_T_TIME_CONST 5
++fi
+\ No newline at end of file
+--- Firmware/ROMFS/navstik_common/init.d/rc.interface	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.interface	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,85 @@
++#!nsh
++#
++# Script to configure control interface
++#
++
++if [ $MIXER != none -a $MIXER != skip ]
++then
++	#
++	# Load mixer
++	#
++	set MIXERSD /fs/microsd/etc/mixers/$MIXER.mix
++	
++	#Use the mixer file from the SD-card if it exists
++	if [ -f $MIXERSD ]
++	then
++		set MIXER_FILE $MIXERSD
++	else
++		set MIXER_FILE /etc/mixers/$MIXER.mix
++	fi
++	
++	if [ $OUTPUT_MODE == mkblctrl ]
++	then
++		set OUTPUT_DEV /dev/mkblctrl
++	else
++		set OUTPUT_DEV /dev/pwm_output
++	fi
++
++	if [ $OUTPUT_MODE == uavcan_esc ]
++	then
++		set OUTPUT_DEV /dev/uavcan/esc
++	fi
++	
++	if mixer load $OUTPUT_DEV $MIXER_FILE
++	then
++		echo "[init] Mixer loaded: $MIXER_FILE"
++	else
++		echo "[init] Error loading mixer: $MIXER_FILE"
++		#tone_alarm $TUNE_OUT_ERROR
++	fi
++else
++	if [ $MIXER != skip ]
++	then
++		echo "[init] Mixer not defined"
++		#tone_alarm $TUNE_OUT_ERROR
++	fi
++fi
++
++if [ $OUTPUT_MODE == fmu -o $OUTPUT_MODE == io ]
++then
++	if [ $PWM_OUTPUTS != none ]
++	then
++		#
++		# Set PWM output frequency
++		#
++		if [ $PWM_RATE != none ]
++		then
++			echo "[init] Set PWM rate: $PWM_RATE"
++			pwm rate -c $PWM_OUTPUTS -r $PWM_RATE
++		fi
++		
++		#
++		# Set disarmed, min and max PWM values
++		#
++		if [ $PWM_DISARMED != none ]
++		then
++			echo "[init] Set PWM disarmed: $PWM_DISARMED"
++			pwm disarmed -c $PWM_OUTPUTS -p $PWM_DISARMED
++		fi
++		if [ $PWM_MIN != none ]
++		then
++			echo "[init] Set PWM min: $PWM_MIN"
++			pwm min -c $PWM_OUTPUTS -p $PWM_MIN
++		fi
++		if [ $PWM_MAX != none ]
++		then
++			echo "[init] Set PWM max: $PWM_MAX"
++			pwm max -c $PWM_OUTPUTS -p $PWM_MAX
++		fi
++	fi
++
++	if [ $FAILSAFE != none ]
++	then
++		pwm failsafe -d $OUTPUT_DEV $FAILSAFE
++	fi
++fi
+--- Firmware/ROMFS/navstik_common/init.d/rc.io	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.io	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,20 @@
++#
++# Init PX4IO interface
++#
++
++#
++# Allow PX4IO to recover from midair restarts.
++#
++px4io recovery
++
++#
++# Adjust PX4IO update rate limit
++#
++set PX4IO_LIMIT 400
++if ver hwcmp PX4FMU_V1
++then
++	set PX4IO_LIMIT 200
++fi
++
++echo "[init] Set PX4IO update rate limit: $PX4IO_LIMIT Hz"
++px4io limit $PX4IO_LIMIT
+--- Firmware/ROMFS/navstik_common/init.d/rc.jig	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.jig	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,10 @@
++#!nsh
++#
++# Test jig startup script
++#
++
++echo "[testing] doing production test.."
++
++tests jig
++
++echo "[testing] testing done"
+--- Firmware/ROMFS/navstik_common/init.d/rc.logging	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.logging	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,16 @@
++#!nsh
++#
++# Initialize logging services.
++#
++
++if [ -d /fs/microsd ]
++then
++	if ver hwcmp PX4FMU_V1
++	then
++		echo "Start sdlog2 at 50Hz"
++		sdlog2 start -r 50 -a -b 4 -t
++	else
++		echo "Start sdlog2 at 200Hz"
++		sdlog2 start -r 200 -a -b 16 -t
++	fi
++fi
+--- Firmware/ROMFS/navstik_common/init.d/rc.mc_apps	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.mc_apps	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,12 @@
++#!nsh
++#
++# Standard apps for multirotors:
++# att & pos estimator, att & pos control.
++#
++
++attitude_estimator_ekf start
++#ekf_att_pos_estimator start
++position_estimator_inav start
++
++mc_att_control start
++mc_pos_control start
+--- Firmware/ROMFS/navstik_common/init.d/rc.mc_defaults	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.mc_defaults	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,47 @@
++#!nsh
++
++set VEHICLE_TYPE mc
++
++if [ $DO_AUTOCONFIG == yes ]
++then
++	param set MC_ROLL_P 7.0
++	param set MC_ROLLRATE_P 0.1
++	param set MC_ROLLRATE_I 0.0
++	param set MC_ROLLRATE_D 0.003
++	param set MC_PITCH_P 7.0
++	param set MC_PITCHRATE_P 0.1
++	param set MC_PITCHRATE_I 0.0
++	param set MC_PITCHRATE_D 0.003
++	param set MC_YAW_P 2.8
++	param set MC_YAWRATE_P 0.2
++	param set MC_YAWRATE_I 0.1
++	param set MC_YAWRATE_D 0.0
++	param set MC_YAW_FF 0.5
++
++	param set MPC_THR_MAX 1.0
++	param set MPC_THR_MIN 0.1
++	param set MPC_XY_P 1.0
++	param set MPC_XY_VEL_P 0.1
++	param set MPC_XY_VEL_I 0.02
++	param set MPC_XY_VEL_D 0.01
++	param set MPC_XY_VEL_MAX 5
++	param set MPC_XY_FF 0.5
++	param set MPC_Z_P 1.0
++	param set MPC_Z_VEL_P 0.1
++	param set MPC_Z_VEL_I 0.02
++	param set MPC_Z_VEL_D 0.0
++	param set MPC_Z_VEL_MAX 3
++	param set MPC_Z_FF 0.5
++	param set MPC_TILTMAX_AIR 45.0
++	param set MPC_TILTMAX_LND 15.0
++	param set MPC_LAND_SPEED 1.0
++
++	param set PE_VELNE_NOISE 0.5
++	param set PE_VELD_NOISE 0.7
++	param set PE_POSNE_NOISE 0.5
++	param set PE_POSD_NOISE 1.0
++
++	param set NAV_ACCEPT_RAD 2.0
++fi
++
++
+--- Firmware/ROMFS/navstik_common/init.d/rcS	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rcS	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,607 @@
++#!nsh
++#
++# NAVSTIK startup script.
++
++#
++# Default to auto-start mode.
++#
++set MODE autostart
++
++set RC_FILE /fs/microsd/etc/rc.txt
++set CONFIG_FILE /fs/microsd/etc/config.txt
++set EXTRAS_FILE /fs/microsd/etc/extras.txt
++
++#
++# Try to mount the microSD card.
++#
++echo "[init] Looking for microSD..."
++if mount -t vfat /dev/mmcsd0 /fs/microsd
++then
++	set LOG_FILE /fs/microsd/bootlog.txt
++	echo "[init] microSD mounted: /fs/microsd"	
++else
++	set LOG_FILE /dev/null
++	echo "[init] No microSD card found"
++fi
++
++#
++# Look for an init script on the microSD card.
++# Disable autostart if the script found.
++#
++if [ -f $RC_FILE ]
++then
++	echo "[init] Executing init script: $RC_FILE"
++	sh $RC_FILE
++	set MODE custom
++else
++	echo "[init] Init script not found: $RC_FILE"
++fi
++
++# if this is an APM build then there will be a rc.APM script
++# from an EXTERNAL_SCRIPTS build option
++if [ -f /etc/init.d/rc.APM ]
++then
++	if sercon
++	then
++		echo "[init] USB interface connected"
++	fi
++
++	echo "[init] Running rc.APM"
++	# if APM startup is successful then nsh will exit
++	sh /etc/init.d/rc.APM
++fi
++
++if [ $MODE == autostart ]
++then
++	echo "[init] AUTOSTART mode"
++
++	#
++	# Start CDC/ACM serial driver
++	#
++	sercon
++
++	# Try to get an USB console
++	#nshterm /dev/ttyACM0 &	
++
++	#
++	# Start the ORB (first app to start)
++	#
++	uorb start
++
++	#
++	# Load parameters
++	#
++	set PARAM_FILE /fs/microsd/params
++	if mtd start
++	then
++		set PARAM_FILE /fs/mtd_params
++	fi
++
++	param select $PARAM_FILE
++	if param load
++	then
++		echo "[param] Loaded: $PARAM_FILE"
++	else
++		echo "[param] FAILED loading $PARAM_FILE"
++		if param reset
++		then
++		fi
++	fi
++
++	#
++	# Start system state indicator
++	#
++	if rgbled start
++	then
++	else
++		if blinkm start
++		then
++			blinkm systemstate
++		fi
++	fi
++
++	if pca8574 start
++	then
++	fi
++
++	#
++	# Set default values
++	#
++	set HIL no
++	set VEHICLE_TYPE none
++	set MIXER none
++	set OUTPUT_MODE none
++	set PWM_OUTPUTS none
++	set PWM_RATE none
++	set PWM_DISARMED none
++	set PWM_MIN none
++	set PWM_MAX none
++	set MKBLCTRL_MODE none
++	set FMU_MODE pwm
++	set MAVLINK_FLAGS default
++	set EXIT_ON_END no
++	set MAV_TYPE none
++	set LOAD_DEFAULT_APPS yes
++	set GPS yes
++	set GPS_FAKE no
++	set FAILSAFE none
++
++	#
++	# Set DO_AUTOCONFIG flag to use it in AUTOSTART scripts
++	#
++	if param compare SYS_AUTOCONFIG 1
++	then
++		# We can't be sure the defaults haven't changed, so
++		# if someone requests a re-configuration, we do it
++		# cleanly from scratch (except autostart / autoconfig)
++		param reset_nostart
++		set DO_AUTOCONFIG yes
++	else
++		set DO_AUTOCONFIG no
++	fi
++
++	#
++	# Set USE_IO flag
++	#
++	if param compare SYS_USE_IO 1
++	then
++		set USE_IO yes
++	else
++		set USE_IO no
++	fi
++
++	#
++	# Set parameters and env variables for selected AUTOSTART
++	#
++	if param compare SYS_AUTOSTART 0
++	then
++		echo "[init] No autostart"
++	else
++		sh /etc/init.d/rc.autostart
++	fi
++
++	#
++	# Override parameters from user configuration file
++	#
++	if [ -f $CONFIG_FILE ]
++	then
++		echo "[init] Config: $CONFIG_FILE"
++		sh $CONFIG_FILE
++	else
++		echo "[init] Config not found: $CONFIG_FILE"
++	fi
++
++	#
++	# If autoconfig parameter was set, reset it and save parameters
++	#
++	if [ $DO_AUTOCONFIG == yes ]
++	then
++		param set SYS_AUTOCONFIG 0
++		param save
++	fi
++
++	set IO_PRESENT no
++
++	if [ $USE_IO == yes ]
++	then
++		#
++		# Check if PX4IO present and update firmware if needed
++		#
++		if [ -f /etc/extras/px4io-v2_default.bin ]
++		then
++			set IO_FILE /etc/extras/px4io-v2_default.bin
++		else
++			set IO_FILE /etc/extras/px4io-v1_default.bin
++		fi
++
++		if px4io checkcrc $IO_FILE
++		then
++			echo "[init] PX4IO CRC OK"
++			echo "PX4IO CRC OK" >> $LOG_FILE
++
++			set IO_PRESENT yes
++		else
++			echo "[init] Trying to update"
++			echo "PX4IO Trying to update" >> $LOG_FILE
++
++			#tone_alarm MLL32CP8MB
++
++			if px4io forceupdate 14662 $IO_FILE
++			then
++				usleep 500000
++				if px4io checkcrc $IO_FILE
++				then
++					echo "[init] PX4IO CRC OK, update successful"
++					echo "PX4IO CRC OK after updating" >> $LOG_FILE
++					#tone_alarm MLL8CDE
++
++					set IO_PRESENT yes
++				else
++					echo "[init] ERROR: PX4IO update failed"
++					echo "PX4IO update failed" >> $LOG_FILE
++					#tone_alarm $TUNE_OUT_ERROR
++				fi
++			else
++				echo "[init] ERROR: PX4IO update failed"
++				echo "PX4IO update failed" >> $LOG_FILE
++				#tone_alarm $TUNE_OUT_ERROR
++			fi
++		fi
++
++		if [ $IO_PRESENT == no ]
++		then
++			echo "[init] ERROR: PX4IO not found"
++			#tone_alarm $TUNE_OUT_ERROR
++		fi
++	fi
++
++	#
++	# Set default output if not set
++	#
++	if [ $OUTPUT_MODE == none ]
++	then
++		if [ $USE_IO == yes ]
++		then
++			set OUTPUT_MODE io
++		else
++			set OUTPUT_MODE fmu
++		fi
++	fi
++
++	if [ $OUTPUT_MODE == io -a $IO_PRESENT != yes ]
++	then
++		# Need IO for output but it not present, disable output
++		set OUTPUT_MODE none
++		echo "[init] ERROR: PX4IO not found, disabling output"
++
++		# Avoid using ttyS0 for MAVLink on FMUv1
++		if ver hwcmp PX4FMU_V1
++		then
++			set FMU_MODE serial
++		fi
++	fi
++
++	if [ $OUTPUT_MODE == ardrone ]
++	then
++		set FMU_MODE gpio_serial
++	fi
++
++	if [ $HIL == yes ]
++	then
++		set OUTPUT_MODE hil
++		if ver hwcmp PX4FMU_V1
++		then
++			set FMU_MODE serial
++		fi
++	fi
++
++	#
++	# Start the datamanager (and do not abort boot if it fails)
++	#
++	if dataman start
++	then
++	fi
++
++	#
++	# Start the Commander (needs to be this early for in-air-restarts)
++	#
++	commander start
++
++	#
++	# Start primary output
++	#
++	set TTYS1_BUSY no
++
++	# If OUTPUT_MODE == none then something is wrong with setup and we shouldn't try to enable output
++	if [ $OUTPUT_MODE != none ]
++	then
++		if [ $OUTPUT_MODE == uavcan_esc ]
++		then
++			if param compare UAVCAN_ENABLE 0
++			then
++				echo "[init] OVERRIDING UAVCAN_ENABLE = 1"
++				param set UAVCAN_ENABLE 1
++			fi
++		fi
++
++		if [ $OUTPUT_MODE == io -o $OUTPUT_MODE == uavcan_esc ]
++		then
++			echo "[init] Use PX4IO PWM as primary output"
++			if px4io start
++			then
++				echo "[init] PX4IO started"
++				sh /etc/init.d/rc.io
++			else
++				echo "[init] ERROR: PX4IO start failed"
++				tone_alarm $TUNE_OUT_ERROR
++			fi
++		fi
++
++		if [ $OUTPUT_MODE == fmu -o $OUTPUT_MODE == ardrone ]
++		then
++			echo "[init] Use FMU as primary output"
++			if fmu mode_$FMU_MODE
++			then
++				echo "[init] FMU mode_$FMU_MODE started"
++				#
++				# Start PWM Ouput (Required by specific ESCs)
++				#
++				pwm_output &
++			else
++				echo "[init] ERROR: FMU mode_$FMU_MODE start failed"
++				#tone_alarm $TUNE_OUT_ERROR
++			fi
++
++			if ver hwcmp PX4FMU_V1
++			then
++				if [ $FMU_MODE == pwm -o $FMU_MODE == gpio ]
++				then
++					set TTYS1_BUSY yes
++				fi
++				if [ $FMU_MODE == pwm_gpio -o $OUTPUT_MODE == ardrone ]
++				then
++					set TTYS1_BUSY yes
++				fi
++			fi
++		fi
++
++		if [ $OUTPUT_MODE == mkblctrl ]
++		then
++			echo "[init] Use MKBLCTRL as primary output"
++			set MKBLCTRL_ARG ""
++			if [ $MKBLCTRL_MODE == x ]
++			then
++				set MKBLCTRL_ARG "-mkmode x"
++			fi
++			if [ $MKBLCTRL_MODE == + ]
++			then
++				set MKBLCTRL_ARG "-mkmode +"
++			fi
++
++			if mkblctrl $MKBLCTRL_ARG
++			then
++				echo "[init] MKBLCTRL started"
++			else
++				echo "[init] ERROR: MKBLCTRL start failed"
++				tone_alarm $TUNE_OUT_ERROR
++			fi
++
++		fi
++
++		if [ $OUTPUT_MODE == hil ]
++		then
++			echo "[init] Use HIL as primary output"
++			if hil mode_port2_pwm8
++			then
++				echo "[init] HIL output started"
++			else
++				echo "[init] ERROR: HIL output start failed"
++				tone_alarm $TUNE_OUT_ERROR
++			fi
++		fi
++
++		#
++		# Start IO or FMU for RC PPM input if needed
++		#
++		if [ $IO_PRESENT == yes ]
++		then
++			if [ $OUTPUT_MODE != io ]
++			then
++				if px4io start
++				then
++					echo "[init] PX4IO started"
++					sh /etc/init.d/rc.io
++				else
++					echo "[init] ERROR: PX4IO start failed"
++					tone_alarm $TUNE_OUT_ERROR
++				fi
++			fi
++		else
++			if [ $OUTPUT_MODE != fmu -a $OUTPUT_MODE != ardrone ]
++			then
++				if fmu mode_$FMU_MODE
++				then
++					echo "[init] FMU mode_$FMU_MODE started"
++				else
++					echo "[init] ERROR: FMU mode_$FMU_MODE start failed"
++					tone_alarm $TUNE_OUT_ERROR
++				fi
++
++				if ver hwcmp PX4FMU_V1
++				then
++					if [ $FMU_MODE == pwm -o $FMU_MODE == gpio ]
++					then
++						set TTYS1_BUSY yes
++					fi
++					if [ $FMU_MODE == pwm_gpio -o $OUTPUT_MODE == ardrone ]
++					then
++						set TTYS1_BUSY yes
++					fi
++				fi
++			fi
++		fi
++	fi
++
++	#
++	# MAVLink
++	#
++	if [ $MAVLINK_FLAGS == default ]
++	then
++		# Normal mode, use baudrate 57600 (default) and data rate 1000 bytes/s
++		if [ $TTYS1_BUSY == yes ]
++		then
++			# Start MAVLink on ttyS0, because FMU ttyS1 pins configured as something else
++			set MAVLINK_FLAGS "-r 1000 -d /dev/ttyS0"
++
++			# Exit from nsh to free port for mavlink
++			set EXIT_ON_END yes
++		else
++			# Start MAVLink on default port: ttyS2
++			set MAVLINK_FLAGS "-r 1000"
++		fi
++	fi
++
++	mavlink start $MAVLINK_FLAGS
++
++	#
++	# UAVCAN
++	#
++	sh /etc/init.d/rc.uavcan
++
++	#
++	# Sensors, Logging, GPS
++	#
++	sh /etc/init.d/rc.sensors
++
++	#
++	# Start logging in all modes, including HIL
++	#
++	sh /etc/init.d/rc.logging
++
++	if [ $GPS == yes ]
++	then
++		echo "[init] Start GPS"
++		if [ $GPS_FAKE == yes ]
++		then
++			echo "[init] Faking GPS"
++			gps start -f
++		else
++			gps start
++		fi
++	fi
++
++	#
++	# Start up ARDrone Motor interface
++	#
++	if [ $OUTPUT_MODE == ardrone ]
++	then
++		ardrone_interface start -d /dev/ttyS1
++	fi
++
++	#
++	# Fixed wing setup
++	#
++	if [ $VEHICLE_TYPE == fw ]
++	then
++		echo "[init] Vehicle type: FIXED WING"
++
++		if [ $MIXER == none ]
++		then
++			# Set default mixer for fixed wing if not defined
++			set MIXER FMU_AERT
++		fi
++
++		if [ $MAV_TYPE == none ]
++		then
++			# Use MAV_TYPE = 1 (fixed wing) if not defined
++			set MAV_TYPE 1
++		fi
++
++		param set MAV_TYPE $MAV_TYPE
++
++		# Load mixer and configure outputs
++		sh /etc/init.d/rc.interface
++
++		# Start standard fixedwing apps
++		if [ $LOAD_DEFAULT_APPS == yes ]
++		then
++			sh /etc/init.d/rc.fw_apps
++		fi
++	fi
++
++	#
++	# Multicopters setup
++	#
++	if [ $VEHICLE_TYPE == mc ]
++	then
++		echo "[init] Vehicle type: MULTICOPTER"
++
++		if [ $MIXER == none ]
++		then
++			echo "Default mixer for multicopter not defined"
++		fi
++
++		if [ $MAV_TYPE == none ]
++		then
++			# Use mixer to detect vehicle type
++			if [ $MIXER == FMU_quad_x -o $MIXER == FMU_quad_+ ]
++			then
++				set MAV_TYPE 2
++			fi
++			if [ $MIXER == FMU_quad_w ]
++			then
++				set MAV_TYPE 2
++			fi
++			if [ $MIXER == FMU_hexa_x -o $MIXER == FMU_hexa_+ ]
++			then
++				set MAV_TYPE 13
++			fi
++			if [ $MIXER == FMU_hexa_cox ]
++			then
++				set MAV_TYPE 13
++			fi
++			if [ $MIXER == FMU_octo_x -o $MIXER == FMU_octo_+ ]
++			then
++				set MAV_TYPE 14
++			fi
++			if [ $MIXER == FMU_octo_cox ]
++			then
++				set MAV_TYPE 14
++			fi
++		fi
++
++		# Still no MAV_TYPE found
++		if [ $MAV_TYPE == none ]
++		then
++			echo "Unknown MAV_TYPE"
++		else
++			param set MAV_TYPE $MAV_TYPE
++		fi
++
++		# Load mixer and configure outputs
++		sh /etc/init.d/rc.interface
++
++		# Start standard multicopter apps
++		if [ $LOAD_DEFAULT_APPS == yes ]
++		then
++			sh /etc/init.d/rc.mc_apps
++		fi
++	fi
++
++	#
++	# Start the navigator
++	#
++	navigator start
++
++	#
++	# Start PWM Input
++	#
++	usleep 5000
++	pwm_input
++
++	#
++	# Generic setup (autostart ID not found)
++	#
++	if [ $VEHICLE_TYPE == none ]
++	then
++		echo "[init] Vehicle type: No autostart ID found"
++
++	fi
++
++	# Start any custom addons
++	if [ -f $EXTRAS_FILE ]
++	then
++		echo "[init] Starting addons script: $EXTRAS_FILE"
++		sh $EXTRAS_FILE
++	else
++		echo "[init] No addons script: $EXTRAS_FILE"
++	fi
++
++	if [ $EXIT_ON_END == yes ]
++	then
++		echo "[init] Exit from nsh"
++		exit
++	fi
++
++# End of autostart
++fi
+--- Firmware/ROMFS/navstik_common/init.d/rc.sensors	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.sensors	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,63 @@
++#!nsh
++#
++# Standard startup script for NAVSTIK onboard sensor drivers.
++#
++
++adc start
++
++if mpu6050 start
++then
++	echo "using MPU6050"
++fi
++
++# MAG selection
++if param compare SENS_EXT_MAG 2
++then
++	if hmc5883 -I start
++	then
++		echo "using Internal Mag"
++	fi
++else
++	# Use only external as primary
++	if param compare SENS_EXT_MAG 1
++	then
++		if hmc5883 -X start
++		then
++			echo "using External Mag"
++		fi
++	else
++	# auto-detect the primary, prefer external
++		if hmc5883 start
++		then
++			echo "using Default Mag"
++		fi
++	fi
++fi
++
++# Start Pressure Sensor
++bmp180 start
++
++# Start airspeed sensors
++if meas_airspeed start
++then
++	echo "[init] Using MEAS airspeed sensor"
++else
++	if ets_airspeed start
++	then
++	else
++		if ets_airspeed start -b 1
++		then
++		fi
++	fi
++fi
++
++#
++# Start the sensor collection task.
++# IMPORTANT: this also loads param offsets
++# ALWAYS start this task before the
++# preflight_check.
++#
++if sensors start
++then
++	preflight_check &
++fi
+--- Firmware/ROMFS/navstik_common/init.d/rc.uavcan	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.uavcan	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,18 @@
++#!nsh
++#
++# UAVCAN initialization script.
++#
++
++if param compare UAVCAN_ENABLE 1
++then
++	if uavcan start
++	then
++		# First sensor publisher to initialize takes lowest instance ID
++		# This delay ensures that UAVCAN-interfaced sensors would be allocated on lowest instance IDs
++		sleep 1
++		echo "[init] UAVCAN started"
++	else
++		echo "[init] ERROR: Could not start UAVCAN"
++		tone_alarm $TUNE_OUT_ERROR
++	fi
++fi
+--- Firmware/ROMFS/navstik_common/init.d/rc.usb	1970-01-01 05:30:00.000000000 +0530
++++ pandapilot_v4/ROMFS/navstik_common/init.d/rc.usb	2015-04-07 14:57:40.246235564 +0530
+@@ -0,0 +1,30 @@
++#!nsh
++#
++# USB MAVLink start
++#
++
++mavlink start -r 20000 -d /dev/ttyACM0 -x
++# Enable a number of interesting streams we want via USB
++mavlink stream -d /dev/ttyACM0 -s PARAM_VALUE -r 200
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s MISSION_ITEM -r 50
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s NAMED_VALUE_FLOAT -r 10
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s OPTICAL_FLOW -r 10
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s VFR_HUD -r 20
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s ATTITUDE -r 20
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s ATTITUDE_CONTROLS -r 30
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s RC_CHANNELS_RAW -r 5
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s SERVO_OUTPUT_RAW_0 -r 20
++usleep 100000
++mavlink stream -d /dev/ttyACM0 -s POSITION_TARGET_GLOBAL_INT -r 10
++usleep 100000
++
++# Exit shell to make it available to MAVLink
++exit
+Binary files Firmware/ROMFS/navstik_common/logging/conv.zip and pandapilot_v4/ROMFS/navstik_common/logging/conv.zip differ

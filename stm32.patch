@@ -1,0 +1,918 @@
+--- Firmware/NuttX/nuttx/arch/arm/include/math.h	2015-04-09 09:41:10.040333220 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/include/math.h	2015-04-09 11:40:56.884012800 +0530
+@@ -2,11 +2,39 @@
+ 
+ #define  _MATH_H_
+ 
++//#include <sys/reent.h>
+ #include <machine/ieeefp.h>
+ #include "_ansi.h"
+ 
++//#define _PARAMS(_x)   _x
++
+ _BEGIN_STD_C
+ 
++#if 0
++/* __dmath, __fmath, and __ldmath are only here for backwards compatibility
++ * in case any code used them.  They are no longer used by Newlib, itself,
++ * other than legacy.  */
++union __dmath
++{
++  double d;
++  __ULong i[2];
++};
++
++union __fmath
++{
++  float f;
++  __ULong i[1];
++};
++
++#if defined(_HAVE_LONG_DOUBLE)
++union __ldmath
++{
++  long double ld;
++  __ULong i[4];
++};
++#endif
++#endif
++
+ /* Natural log of 2 */
+ #define _M_LN2        0.693147180559945309417
+ 
+@@ -226,7 +254,7 @@
+ extern double tgamma _PARAMS((double));
+ extern double nearbyint _PARAMS((double));
+ extern long int lrint _PARAMS((double));
+-extern long long int llrint _PARAMS((double));
++extern _LONG_LONG_TYPE int llrint _PARAMS((double));
+ extern double round _PARAMS((double));
+ extern long int lround _PARAMS((double));
+ extern long long int llround _PARAMS((double));
+@@ -296,7 +324,7 @@
+ extern float tgammaf _PARAMS((float));
+ extern float nearbyintf _PARAMS((float));
+ extern long int lrintf _PARAMS((float));
+-extern long long llrintf _PARAMS((float));
++extern _LONG_LONG_TYPE llrintf _PARAMS((float));
+ extern float roundf _PARAMS((float));
+ extern long int lroundf _PARAMS((float));
+ extern long long int llroundf _PARAMS((float));
+@@ -389,7 +417,7 @@
+ extern long long int llrintl _PARAMS((long double));
+ extern long double roundl _PARAMS((long double));
+ extern long lroundl _PARAMS((long double));
+-extern long long int llroundl _PARAMS((long double));
++extern _LONG_LONG_TYPE int llroundl _PARAMS((long double));
+ extern long double truncl _PARAMS((long double));
+ extern long double remquol _PARAMS((long double, long double, int *));
+ extern long double fdiml _PARAMS((long double, long double));
+@@ -409,7 +437,7 @@
+ /* Other long double precision functions.  */
+ extern _LONG_DOUBLE rintl _PARAMS((_LONG_DOUBLE));
+ extern long int lrintl _PARAMS((_LONG_DOUBLE));
+-extern long long llrintl _PARAMS((_LONG_DOUBLE));
++extern _LONG_LONG_TYPE llrintl _PARAMS((_LONG_DOUBLE));
+ #endif /* __i386__ */
+ #endif /* !_LDBL_EQ_DBL */
+ 
+--- Firmware/NuttX/nuttx/arch/arm/include/stm32/chip.h	2015-04-09 09:41:10.040333220 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/include/stm32/chip.h	2015-04-09 11:40:56.884012800 +0530
+@@ -445,43 +445,6 @@
+ #  define STM32_NRNG                     0   /* No random number generator (RNG) */
+ #  define STM32_NDCMI                    0   /* No digital camera interface (DCMI) */
+ 
+-
+-/* STM32 F102x8/102xB Medium Density USB Access Family ***************************/
+-#elif defined(CONFIG_ARCH_CHIP_STM32F102CB)
+-#  undef  CONFIG_STM32_STM32L15XX            /* STM32L151xx and STM32L152xx family */
+-#  undef  CONFIG_STM32_ENERGYLITE            /* STM32L EnergyLite vamily */
+-#  define CONFIG_STM32_STM32F10XX        1   /* STM32F10xx family */
+-#  undef  CONFIG_STM32_LOWDENSITY            /* STM32F100x, STM32F101x, STM32F102x and STM32F103x w/ 16/32 Kbytes */
+-#  define CONFIG_STM32_MEDIUMDENSITY     1   /* STM32F100x, STM32F101x, STM32F102x and STM32F103x w/ 64/128 Kbytes */
+-#  undef  CONFIG_STM32_HIGHDENSITY           /* STM32F100x, STM32F101x, and STM32F103x w/ 256/512 Kbytes */
+-#  undef  CONFIG_STM32_VALUELINE             /* STM32F100x */
+-#  define CONFIG_STM32_USBACCESSLINE     1   /* STM32F102xx */
+-#  undef  CONFIG_STM32_CONNECTIVITYLINE      /* STM32F105x and STM32F107x */
+-#  undef  CONFIG_STM32_STM32F20XX            /* STM32F205x and STM32F207x */
+-#  undef  CONFIG_STM32_STM32F30XX            /* STM32F30xxx family */
+-#  undef  CONFIG_STM32_STM32F40XX            /* STM32F405xx and STM32407xx families */
+-#  define STM32_NFSMC                    1   /* FSMC */
+-#  define STM32_NATIM                    0   /* No advanced timer TIM1 */
+-#  define STM32_NGTIM                    3   /* 16-bit general timers TIM2,3,4 */
+-#  define STM32_NBTIM                    0   /* No basic timers */
+-#  define STM32_NDMA                     1   /* DMA */
+-#  define STM32_NSPI                     2   /* SPI1-2 */
+-#  define STM32_NI2S                     0   /* No I2S */
+-#  define STM32_NUSART                   3   /* USART1-3 */
+-#  define STM32_NI2C                     2   /* I2C1-2 */
+-#  define STM32_NCAN                     0   /* No CAN */
+-#  define STM32_NSDIO                    0   /* No SDIO */
+-#  define STM32_NLCD                     0   /* No LCD */
+-#  define STM32_NUSBOTG                  0   /* No USB OTG FS/HS */
+-#  define STM32_NGPIO                    37  /* GPIOA-D */
+-#  define STM32_NADC                     1   /* ADC1 */
+-#  define STM32_NDAC                     0   /* No DAC */
+-#  define STM32_NCAPSENSE                0   /* No capacitive sensing channels */
+-#  define STM32_NCRC                     1   /* CRC1 */
+-#  define STM32_NETHERNET                0   /* No ethernet */
+-#  define STM32_NRNG                     0   /* No random number generator (RNG) */
+-#  define STM32_NDCMI                    0   /* No digital camera interface (DCMI) */
+-
+ /* STM32 F103 Low Density Family *************************************************/
+ 
+ /* STM32F103C4 & STM32F103C6 */
+--- Firmware/NuttX/nuttx/arch/arm/src/armv7-m/up_initialstate.c	2015-04-09 09:41:10.048333219 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/armv7-m/up_initialstate.c	2015-04-09 11:40:56.896012799 +0530
+@@ -97,11 +97,11 @@
+   /* Set the stack limit value */
+ 
+   xcp->regs[REG_R10]     = (uint32_t)tcb->stack_alloc_ptr + 64;
+-#endif
+ 
+   /* Fill the stack with a watermark value */
+ 
+   memset(tcb->stack_alloc_ptr, 0xff, tcb->adj_stack_size);
++#endif
+ 
+   /* Save the task entry point (stripping off the thumb bit) */
+ 
+--- Firmware/NuttX/nuttx/arch/arm/src/armv7-m/up_memcpy.S	2015-04-09 09:41:10.048333219 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/armv7-m/up_memcpy.S	2015-04-09 11:40:56.896012799 +0530
+@@ -142,26 +142,11 @@
+  * Input Parameters:
+  *   r0 = destination, r1 = source, r2 = length
+  *
+- * Returned Value:
+- *   r0 = destination r1-r3 burned
+- *
+  ************************************************************************************/
+ 
+-	.align 4
+ 	.thumb_func
+-
+ memcpy:
+ 	push	{r14}
+-	push    {r0}
+-	bl      _do_memcpy
+-	pop     {r0}
+-	pop     {pc}
+-
+-	.align 4
+-
+-	.thumb_func
+-_do_memcpy:
+-	push    {r14}
+ 
+ 	/* This allows the inner workings to "assume" a minimum amount of bytes */
+ 	/* Quickly check for very short copies */
+--- Firmware/NuttX/nuttx/arch/arm/src/armv7-m/up_stackcheck.c	2015-04-09 09:41:10.052333219 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/armv7-m/up_stackcheck.c	2015-04-09 11:40:56.896012799 +0530
+@@ -1,9 +1,4 @@
+-#include <nuttx/config.h>
+ 
+-#include <stdint.h>
+-
+-#include "up_arch.h"
+-#include "nvic.h"
+ 
+ void    __cyg_profile_func_enter(void *func, void *caller) __attribute__((naked, no_instrument_function));
+ void    __cyg_profile_func_exit(void *func, void *caller)  __attribute__((naked, no_instrument_function));
+@@ -12,19 +7,8 @@
+ void
+ __stack_overflow_trap(void)
+ {
+-  /* if we get here, the stack has overflowed */
+-
+-  uint32_t regval;
+-
+-  /* force hard fault */
+-  regval  = getreg32(NVIC_INTCTRL);
+-  regval |= NVIC_INTCTRL_NMIPENDSET;
+-  putreg32(regval, NVIC_INTCTRL);
+-
+-  /* trap */
+-  /* XXX no need to trap it here, the fault handler gets to it
+-   asm ( "b .");
+-  */
++    /* if we get here, the stack has overflowed */
++    asm ( "b .");
+ }
+ 
+ void
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/chip.h	2015-04-09 09:41:10.152333215 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/chip.h	2015-04-09 11:40:56.996012795 +0530
+@@ -69,10 +69,6 @@
+ #  if defined(CONFIG_STM32_VALUELINE)
+ #    include "chip/stm32f100_pinmap.h"
+ 
+-/* STM32 F102 USB Access Medium Density Family */
+-#  elif defined(CONFIG_ARCH_CHIP_STM32F102CB)
+-#    include "chip/stm32f102_pinmap.h"
+- 
+ /* STM32 F103 Low / Medium Density Family */
+ #  elif defined(CONFIG_ARCH_CHIP_STM32F103C4) || defined(CONFIG_ARCH_CHIP_STM32F103C8)
+ #    include "chip/stm32f103c_pinmap.h"
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/chip/stm32f102_pinmap.h	2015-04-09 09:41:10.156333215 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/chip/stm32f102_pinmap.h	1970-01-01 05:30:00.000000000 +0530
+@@ -1,258 +0,0 @@
+-/************************************************************************************
+- * arch/arm/src/stm32/chip/stm32f102_pinmap.h
+- *
+- *   Copyright (C) 2013 Gregory Nutt. All rights reserved.
+- *   Author: Gregory Nutt <gnutt@nuttx.org>
+- *           Laurent Latil <laurent@latil.nom.fr>
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions
+- * are met:
+- *
+- * 1. Redistributions of source code must retain the above copyright
+- *    notice, this list of conditions and the following disclaimer.
+- * 2. Redistributions in binary form must reproduce the above copyright
+- *    notice, this list of conditions and the following disclaimer in
+- *    the documentation and/or other materials provided with the
+- *    distribution.
+- * 3. Neither the name NuttX nor the names of its contributors may be
+- *    used to endorse or promote products derived from this software
+- *    without specific prior written permission.
+- *
+- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+- * POSSIBILITY OF SUCH DAMAGE.
+- *
+- ************************************************************************************/
+-
+-#ifndef __ARCH_ARM_SRC_STM32_CHIP_STM32F102_PINMAP_H
+-#define __ARCH_ARM_SRC_STM32_CHIP_STM32F102_PINMAP_H
+-
+-/************************************************************************************
+- * Included Files
+- ************************************************************************************/
+-
+-#include <nuttx/config.h>
+-
+-/************************************************************************************
+- * Pre-processor Definitions
+- ************************************************************************************/
+-
+-/* Alternate Pin Functions: */
+-
+-#define GPIO_ADC12_IN0          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN0)
+-#define GPIO_ADC12_IN1          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN1)
+-#define GPIO_ADC12_IN2          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN2)
+-#define GPIO_ADC12_IN3          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN3)
+-#define GPIO_ADC12_IN4          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN4)
+-#define GPIO_ADC12_IN5          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN5)
+-#define GPIO_ADC12_IN6          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN6)
+-#define GPIO_ADC12_IN7          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN7)
+-#define GPIO_ADC12_IN8          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN0)
+-#define GPIO_ADC12_IN9          (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN1)
+-#define GPIO_ADC12_IN10         (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN0)
+-#define GPIO_ADC12_IN11         (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN1)
+-#define GPIO_ADC12_IN12         (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN2)
+-#define GPIO_ADC12_IN13         (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN3)
+-#define GPIO_ADC12_IN14         (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN4)
+-#define GPIO_ADC12_IN15         (GPIO_INPUT|GPIO_CNF_ANALOGIN|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN5)
+-
+-#if defined(CONFIG_STM32_I2C1_REMAP)
+-#  define GPIO_I2C1_SCL         (GPIO_ALT|GPIO_CNF_AFOD|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN8)
+-#  define GPIO_I2C1_SDA         (GPIO_ALT|GPIO_CNF_AFOD|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN9)
+-#else
+-#  define GPIO_I2C1_SCL         (GPIO_ALT|GPIO_CNF_AFOD|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN6)
+-#  define GPIO_I2C1_SDA         (GPIO_ALT|GPIO_CNF_AFOD|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN7)
+-#endif
+-#define GPIO_I2C1_SMBA          (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN5)
+-
+-#define GPIO_I2C2_SCL           (GPIO_ALT|GPIO_CNF_AFOD|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN10)
+-#define GPIO_I2C2_SDA           (GPIO_ALT|GPIO_CNF_AFOD|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN11)
+-#define GPIO_I2C2_SMBA          (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN12)
+-
+-#define GPIO_MCO                (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN8)
+-
+-#if defined(CONFIG_STM32_SPI1_REMAP)
+-#  define GPIO_SPI1_NSS         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN15)
+-#  define GPIO_SPI1_SCK         (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN3)
+-#  define GPIO_SPI1_MISO        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN4)
+-#  define GPIO_SPI1_MOSI        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN5)
+-#else
+-#  define GPIO_SPI1_NSS         (GPIO_INPUT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN4)
+-#  define GPIO_SPI1_SCK         (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN5)
+-#  define GPIO_SPI1_MISO        (GPIO_INPUT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN6)
+-#  define GPIO_SPI1_MOSI        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN7)
+-#endif
+-
+-#define GPIO_SPI2_NSS           (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN12)
+-#define GPIO_SPI2_SCK           (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN13)
+-#define GPIO_SPI2_MISO          (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN14)
+-#define GPIO_SPI2_MOSI          (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN15)
+-
+-#if defined(CONFIG_STM32_TIM2_FULL_REMAP)
+-#  define GPIO_TIM2_ETR         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN15)
+-#  define GPIO_TIM2_CH1IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN15)
+-#  define GPIO_TIM2_CH1OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN15)
+-#  define GPIO_TIM2_CH2IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN3)
+-#  define GPIO_TIM2_CH2OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN3)
+-#  define GPIO_TIM2_CH3IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN10)
+-#  define GPIO_TIM2_CH3OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN10)
+-#  define GPIO_TIM2_CH4IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN11)
+-#  define GPIO_TIM2_CH4OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN11)
+-#elif defined(CONFIG_STM32_TIM2_PARTIAL_REMAP_1)
+-#  define GPIO_TIM2_ETR         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN15)
+-#  define GPIO_TIM2_CH1IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN15)
+-#  define GPIO_TIM2_CH1OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN15)
+-#  define GPIO_TIM2_CH2IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN3)
+-#  define GPIO_TIM2_CH2OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN3)
+-#  define GPIO_TIM2_CH3IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN2)
+-#  define GPIO_TIM2_CH3OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN2)
+-#  define GPIO_TIM2_CH4IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN3)
+-#  define GPIO_TIM2_CH4OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN3)
+-#elif defined(CONFIG_STM32_TIM2_PARTIAL_REMAP_2)
+-#  define GPIO_TIM2_ETR         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN0)
+-#  define GPIO_TIM2_CH1IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN0)
+-#  define GPIO_TIM2_CH1OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN0)
+-#  define GPIO_TIM2_CH2IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN1)
+-#  define GPIO_TIM2_CH2OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN1)
+-#  define GPIO_TIM2_CH3IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN10)
+-#  define GPIO_TIM2_CH3OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN10)
+-#  define GPIO_TIM2_CH4IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN11)
+-#  define GPIO_TIM2_CH4OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN11)
+-#else
+-#  define GPIO_TIM2_ETR         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN0)
+-#  define GPIO_TIM2_CH1IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN0)
+-#  define GPIO_TIM2_CH1OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN0)
+-#  define GPIO_TIM2_CH2IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN1)
+-#  define GPIO_TIM2_CH2OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN1)
+-#  define GPIO_TIM2_CH3IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN2)
+-#  define GPIO_TIM2_CH3OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN2)
+-#  define GPIO_TIM2_CH4IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN3)
+-#  define GPIO_TIM2_CH4OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN3)
+-#endif
+-
+-
+-#if defined(CONFIG_STM32_TIM3_FULL_REMAP)
+-#  define GPIO_TIM3_CH1IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN6)
+-#  define GPIO_TIM3_CH1OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTC|GPIO_PIN6)
+-#  define GPIO_TIM3_CH2IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN7)
+-#  define GPIO_TIM3_CH2OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTC|GPIO_PIN7)
+-#  define GPIO_TIM3_CH3IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN8)
+-#  define GPIO_TIM3_CH3OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTC|GPIO_PIN8)
+-#  define GPIO_TIM3_CH4IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN9)
+-#  define GPIO_TIM3_CH4OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTC|GPIO_PIN9)
+-#elif defined(CONFIG_STM32_TIM3_PARTIAL_REMAP)
+-#  define GPIO_TIM3_CH1IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN4)
+-#  define GPIO_TIM3_CH1OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN4)
+-#  define GPIO_TIM3_CH2IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN5)
+-#  define GPIO_TIM3_CH2OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN5)
+-#  define GPIO_TIM3_CH3IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN0)
+-#  define GPIO_TIM3_CH3OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN0)
+-#  define GPIO_TIM3_CH4IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN1)
+-#  define GPIO_TIM3_CH4OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN1)
+-#else
+-#  define GPIO_TIM3_CH1IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN6)
+-#  define GPIO_TIM3_CH1OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN6)
+-#  define GPIO_TIM3_CH2IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN7)
+-#  define GPIO_TIM3_CH2OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN7)
+-#  define GPIO_TIM3_CH3IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN0)
+-#  define GPIO_TIM3_CH3OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN0)
+-#  define GPIO_TIM3_CH4IN       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN1)
+-#  define GPIO_TIM3_CH4OUT      (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN1)
+-#endif
+-#define GPIO_TIM3_ETR           (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN2)
+-
+-
+-#if defined(CONFIG_STM32_TIM4_FULL_REMAP)
+-#  define GPIO_TIM4_CH1IN         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN12)
+-#  define GPIO_TIM4_CH1OUT        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN12)
+-#  define GPIO_TIM4_CH2IN         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN13)
+-#  define GPIO_TIM4_CH2OUT        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN13)
+-#  define GPIO_TIM4_CH3IN         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN14)
+-#  define GPIO_TIM4_CH3OUT        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN14)
+-#  define GPIO_TIM4_CH4IN         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN15)
+-#  define GPIO_TIM4_CH4OUT        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN15)
+-#else
+-#  define GPIO_TIM4_CH1IN         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN6)
+-#  define GPIO_TIM4_CH1OUT        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN6)
+-#  define GPIO_TIM4_CH2IN         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN7)
+-#  define GPIO_TIM4_CH2OUT        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN7)
+-#  define GPIO_TIM4_CH3IN         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN8)
+-#  define GPIO_TIM4_CH3OUT        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN8)
+-#  define GPIO_TIM4_CH4IN         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN9)
+-#  define GPIO_TIM4_CH4OUT        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN9)
+-#endif
+-
+-/* USARTS */
+-
+-#define GPIO_USART1_CTS         (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN11)
+-#define GPIO_USART1_RTS         (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN12)
+-#define GPIO_USART1_CK          (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN8)
+-#if defined(CONFIG_STM32_USART1_REMAP)
+-#  define GPIO_USART1_TX        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN6)
+-#  define GPIO_USART1_RX        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN7)
+-#else
+-#  define GPIO_USART1_TX        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN9)
+-#  define GPIO_USART1_RX        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN10)
+-#endif
+-
+-#if defined(CONFIG_STM32_USART2_REMAP)
+-#  define GPIO_USART2_CTS        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN3)
+-#  define GPIO_USART2_RTS       (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN4)
+-#  define GPIO_USART2_TX        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN5)
+-#  define GPIO_USART2_RX        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN6)
+-#  define GPIO_USART2_CK        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN7)
+-#else
+-#  define GPIO_USART2_CTS       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN0)
+-#  define GPIO_USART2_RTS       (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN1)
+-#  define GPIO_USART2_TX        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN2)
+-#  define GPIO_USART2_RX        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN3)
+-#  define GPIO_USART2_CK        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN4)
+-#endif
+-
+-#if defined(CONFIG_STM32_USART3_FULL_REMAP)
+-#  define GPIO_USART3_TX        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN8)
+-#  define GPIO_USART3_RX        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN9)
+-#  define GPIO_USART3_CK        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN10)
+-#  define GPIO_USART3_CTS        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTD|GPIO_PIN11)
+-#  define GPIO_USART3_RTS       (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTD|GPIO_PIN12)
+-#elif defined(CONFIG_STM32_USART3_PARTIAL_REMAP)
+-#  define GPIO_USART3_TX        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTC|GPIO_PIN10)
+-#  define GPIO_USART3_RX        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTC|GPIO_PIN11)
+-#  define GPIO_USART3_CK        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTC|GPIO_PIN12)
+-#  define GPIO_USART3_CTS       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN13)
+-#  define GPIO_USART3_RTS       (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN14)
+-#else
+-#  define GPIO_USART3_TX        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN10)
+-#  define GPIO_USART3_RX        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN11)
+-#  define GPIO_USART3_CK        (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN12)
+-#  define GPIO_USART3_CTS       (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN13)
+-#  define GPIO_USART3_RTS       (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN14)
+-#endif
+-
+-#define GPIO_WKUP               (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN0)
+-
+-/* These GPIOs are shared with JTAG / SWD. */
+-
+-#if defined(CONFIG_STM32_JTAG_DISABLE)
+-#  define GPIO_PA13               (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN13)
+-#  define GPIO_PA14               (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN14)
+-#endif
+-#if defined (CONFIG_STM32_JTAG_SW_ENABLE) || defined(CONFIG_STM32_JTAG_NOJNTRST_ENABLE) || defined(CONFIG_STM32_JTAG_DISABLE)
+-#    define GPIO_PB4                (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN4)
+-#    if defined (CONFIG_STM32_JTAG_SW_ENABLE) || defined(CONFIG_STM32_JTAG_DISABLE)
+-#      define GPIO_PA15               (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN15)
+-#      define GPIO_PB3                (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN3)
+-#    endif
+-#endif
+-
+-#endif /* __ARCH_ARM_SRC_STM32_CHIP_STM32F102_PINMAP_H */
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/chip/stm32f103c_pinmap.h	2015-04-09 09:41:10.156333215 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/chip/stm32f103c_pinmap.h	2015-04-09 11:40:57.000012794 +0530
+@@ -230,28 +230,6 @@
+ #  define GPIO_USART1_RX        (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN10)
+ #endif
+ 
+-#if defined(CONFIG_STM32_USART2_REMAP)
+-#  error CONFIG_STM32_USART2_REMAP not supported on this architecture
+-#else
+-#  define GPIO_USART2_CTS   (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN0)
+-#  define GPIO_USART2_RTS   (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN1)
+-#  define GPIO_USART2_TX    (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN2)
+-#  define GPIO_USART2_RX    (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTA|GPIO_PIN3)
+-#  define GPIO_USART2_CK    (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN4)
+-#endif
+-
+-#if defined(CONFIG_STM32_USART3_FULL_REMAP)
+-#  error CONFIG_STM32_USART3_FULL_REMAP not supported on this architecture
+-#elif defined(CONFIG_STM32_USART3_PARTIAL_REMAP)
+-#  error CONFIG_STM32_USART3_PARTIAL_REMAP not supported on this architecture
+-#else
+-#  define GPIO_USART3_TX    (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN10)
+-#  define GPIO_USART3_RX    (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN11)
+-#  define GPIO_USART3_CK    (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN12)
+-#  define GPIO_USART3_CTS   (GPIO_INPUT|GPIO_CNF_INFLOAT|GPIO_MODE_INPUT|GPIO_PORTB|GPIO_PIN13)
+-#  define GPIO_USART3_RTS   (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTB|GPIO_PIN14)
+-#endif
+- 
+ #define GPIO_WKUP               (GPIO_ALT|GPIO_CNF_AFPP|GPIO_MODE_50MHz|GPIO_PORTA|GPIO_PIN0)
+ 
+ /* These GPIOs are shared with JTAG / SWD. */
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/chip/stm32f40xxx_rcc.h	2015-04-09 09:41:10.160333214 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/chip/stm32f40xxx_rcc.h	2015-04-09 11:40:57.004012794 +0530
+@@ -182,8 +182,8 @@
+ #  define RCC_CFGR_PPRE2_HCLKd8     (6 << RCC_CFGR_PPRE2_SHIFT) /* 110: HCLK divided by 8 */
+ #  define RCC_CFGR_PPRE2_HCLKd16    (7 << RCC_CFGR_PPRE2_SHIFT) /* 111: HCLK divided by 16 */
+ #define RCC_CFGR_RTCPRE_SHIFT       (16)      /* Bits 16-20: APB High speed prescaler (APB2) */
+-#define RCC_CFGR_RTCPRE_MASK        (31 << RCC_CFGR_RTCPRE_SHIFT)
+-#  define RCC_CFGR_RTCPRE(n)        ((n) << RCC_CFGR_RTCPRE_SHIFT) /* HSE/n, n=1..31 */
++#define RCC_CFGR_RTCPRE_MASK        (31 << RCC_CFGR_RTCPRE)
++#  define RCC_CFGR_RTCPRE(n)        ((n) << RCC_CFGR_RTCPRE) /* HSE/n, n=1..31 */
+ #define RCC_CFGR_MCO1_SHIFT         (21)      /* Bits 21-22: Microcontroller Clock Output */
+ #define RCC_CFGR_MCO1_MASK          (3 << RCC_CFGR_MCO1_SHIFT)
+ #  define RCC_CFGR_MCO1_HSI         (0 << RCC_CFGR_MCO1_SHIFT) /* 00: HSI clock selected */
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/Kconfig	2015-04-09 09:41:10.152333215 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/Kconfig	2015-04-09 11:40:56.996012795 +0530
+@@ -241,13 +241,6 @@
+ 	select STM32_VALUELINE
+ 	select STM32_HIGHDENSITY
+ 
+-config ARCH_CHIP_STM32F102CB
+-	bool "STM32F102CB"
+-	select ARCH_CORTEXM3
+-	select STM32_STM32F10XX
+-	select STM32_USBACCESSLINE
+-	select STM32_MEDIUMDENSITY
+-
+ config ARCH_CHIP_STM32F103C4
+ 	bool "STM32F103C4"
+ 	select ARCH_CORTEXM3
+@@ -861,7 +854,7 @@
+ config STM32_USB
+ 	bool "USB Device"
+ 	default n
+-	depends on (STM32_STM32F10XX && !STM32_VALUELINE) || STM32_USBACCESSLINE || STM32_STM32L15XX || STM32_STM32F30XX
++	depends on (STM32_STM32F10XX && !STM32_VALUELINE) || STM32_STM32L15XX || STM32_STM32F30XX
+ 	select USBDEV
+ 
+ config STM32_LCD
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/stm32f40xxx_rcc.c	2015-04-09 09:41:10.176333214 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/stm32f40xxx_rcc.c	2015-04-09 11:40:57.020012793 +0530
+@@ -651,15 +651,6 @@
+       regval |= STM32_RCC_CFGR_PPRE1;
+       putreg32(regval, STM32_RCC_CFGR);
+ 
+-#ifdef CONFIG_RTC_HSECLOCK
+-      /* Set the RTC clock divisor */
+-
+-      regval = getreg32(STM32_RCC_CFGR);
+-      regval &= ~RCC_CFGR_RTCPRE_MASK;
+-      regval |= RCC_CFGR_RTCPRE(24); /* Assume 24MHz ext clock */
+-      putreg32(regval, STM32_RCC_CFGR);
+-#endif
+-
+       /* Set the PLL dividers and multiplers to configure the main PLL */
+ 
+       regval = (STM32_PLLCFG_PLLM | STM32_PLLCFG_PLLN |STM32_PLLCFG_PLLP |
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/stm32_i2c.c	2015-04-09 09:41:10.168333214 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/stm32_i2c.c	2015-04-09 11:40:57.012012794 +0530
+@@ -93,9 +93,6 @@
+ #include "stm32_i2c.h"
+ #include "stm32_waste.h"
+ 
+-// useful when debugging
+-// #pragma GCC optimize("O0")
+-
+ /* At least one I2C peripheral must be enabled */
+ 
+ #if defined(CONFIG_STM32_I2C1) || defined(CONFIG_STM32_I2C2) || defined(CONFIG_STM32_I2C3)
+@@ -319,8 +316,6 @@
+ static inline void stm32_i2c_enablefsmc(uint32_t ahbenr);
+ #endif /* I2C1_FSMC_CONFLICT */
+ static int stm32_i2c_isr(struct stm32_i2c_priv_s * priv);
+-// useful when debugging
+-// static int stm32_i2c_isr(struct stm32_i2c_priv_s *priv) __attribute__((optimize("O0")));
+ #ifndef CONFIG_I2C_POLLED
+ #ifdef CONFIG_STM32_I2C1
+ static int stm32_i2c1_isr(int irq, void *context);
+@@ -1267,29 +1262,6 @@
+             // throw away the unexpected byte
+             stm32_i2c_getreg(priv, STM32_I2C_DR_OFFSET);
+         }
+-    } else if (status & I2C_SR1_TXE) {
+-	    /* this should never happen, but it does happen
+-	       occasionally with lots of noise on the bus. It means the
+-	       peripheral is expecting more data bytes, but we don't have
+-	       any to give.
+-	       This has been seen with status=0x70084, reproduced with
+-	       noise generated by a Jabra wireless headset in close
+-	       proximity to the I2C lines
+-	    */
+-            stm32_i2c_putreg(priv, STM32_I2C_DR_OFFSET, 0);
+-    } else if (status & I2C_SR1_BTF) {
+-	    /*
+-	      we should have handled all cases where this could happen
+-	      above, but just to ensure it gets acked, lets clear it here
+-	     */
+-            stm32_i2c_getreg(priv, STM32_I2C_DR_OFFSET);
+-    } else if (status & I2C_SR1_STOPF) {
+-	    /*
+-	      we should never get this, as we are a master not a
+-	      slave. Write CR1 with its current value to clear the
+-	      error
+-	     */
+-	    stm32_i2c_modifyreg(priv, STM32_I2C_CR1_OFFSET, 0, 0);
+     }
+     
+     /* Do we have more bytes to send, enable/disable buffer interrupts
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/stm32_rtcc.c	2015-04-09 09:41:10.172333214 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/stm32_rtcc.c	2015-04-09 11:40:57.016012794 +0530
+@@ -81,7 +81,9 @@
+ 
+ #define SYNCHRO_TIMEOUT  (0x00020000)
+ #define INITMODE_TIMEOUT (0x00010000)
+-#define RTC_MAGIC        (0xfacefeee)
++#define RTC_MAGIC        (0xfacefeed)
++#define RTC_PREDIV_S     (0xff)
++#define RTC_PREDIV_A     (0x7f)
+ 
+ /* Debug ****************************************************************************/
+ 
+@@ -435,30 +437,11 @@
+   uint32_t regval;
+   int ret;
+ 
+-  /* We might be changing RTCSEL - to ensure such changes work, we must reset the backup domain */
+-  modifyreg32(STM32_RCC_BDCR, 0, RCC_BDCR_BDRST);
+-  modifyreg32(STM32_RCC_BDCR, RCC_BDCR_BDRST, 0);
+-
+-/* Some boards do not have the external 32khz oscillator installed, for those boards we must fallback to the crummy
+- * internal RC clock or the external high rate clock
+- */
+-#ifdef CONFIG_RTC_HSECLOCK
+-  /* Use the HSE clock as the input to the RTC block */
+-  modifyreg32(STM32_RCC_BDCR, RCC_BDCR_RTCSEL_MASK, RCC_BDCR_RTCSEL_HSE);
+-
+-  /* Enable the RTC Clock by setting the RTCEN bit in the RCC BDCR register */
+-  modifyreg32(STM32_RCC_BDCR, 0, RCC_BDCR_RTCEN);
+-#elif defined(CONFIG_RTC_LSICLOCK)
+-  stm32_rcc_enablelsi();
+-
+-  /* Use the LSI clock as the input to the RTC block */
+-  modifyreg32(STM32_RCC_BDCR, RCC_BDCR_RTCSEL_MASK, RCC_BDCR_RTCSEL_LSI);
++  /* Enable the External Low-Speed (LSE) Oscillator setup the LSE as the RTC clock\
++   * source, and enable the RTC.
++   */
+ 
+-  /* Enable the RTC Clock by setting the RTCEN bit in the RCC BDCR register */
+-  modifyreg32(STM32_RCC_BDCR, 0, RCC_BDCR_RTCEN);
+-#else
+   stm32_rcc_enablelse();
+-#endif
+ 
+   /* Wait for the RTC Time and Date registers to be synchronized with RTC APB
+    * clock.
+@@ -484,19 +467,13 @@
+           regval &= ~RTC_CR_FMT;
+           putreg32(regval, STM32_RTC_CR);
+ 
+-          /* Configure RTC pre-scaler with the required values */
++          /* Configure RTC pre-scaler to the required, default values for
++           * use with the 32.768 KHz LSE clock:
++           */
+ 
+-#ifdef CONFIG_RTC_HSECLOCK
+-          /* For a 1 MHz clock this yields 0.9999360041 Hz on the second timer - which is pretty close */
+-          putreg32(((uint32_t)7182 << RTC_PRER_PREDIV_S_SHIFT) |
+-                   ((uint32_t)0x7f << RTC_PRER_PREDIV_A_SHIFT),
+-                   STM32_RTC_PRER);
+-#else
+-          /* Correct values for 1 32.768 KHz LSE clock */
+           putreg32(((uint32_t)0xff << RTC_PRER_PREDIV_S_SHIFT) |
+                    ((uint32_t)0x7f << RTC_PRER_PREDIV_A_SHIFT),
+                    STM32_RTC_PRER);
+-#endif
+ 
+           /* Exit RTC initialization mode */
+ 
+@@ -599,6 +576,8 @@
+   uint32_t regval;
+   int ret;
+ 
++  rtc_dumpregs("On reset");
++
+   /* Clocking for the PWR block must be provided.  However, this is done
+    * unconditionally in stm32f40xxx_rcc.c on power up.  This done unconditionally
+    * because the PWR block is also needed to set the internal voltage regulator for
+@@ -611,16 +590,11 @@
+ 
+   stm32_pwr_enablebkp();
+ 
+-  rtc_dumpregs("On reset");
+-
+-  /* Enable the External Low-Speed (LSE) Oscillator setup the LSE as the RTC clock\
+-   * source, and enable the RTC.
+-   */
+-
+-  /* Check if the one-time initialization of the RTC has already been perfomagrmed.
++  /* Check if the one-time initialization of the RTC has already been performed.
+    * We can determine this by checking if the magic number has been writing to
+    * to back-up date register DR0.
+    */
++
+   regval = getreg32(STM32_RTC_BK0R);
+   if (regval != RTC_MAGIC)
+     {
+@@ -637,8 +611,6 @@
+       /* RTC already set-up, just resume normal operation */
+ 
+       ret = rtc_resume();
+-
+-      rtc_dumpregs("Did resume");
+     }
+ 
+   /* Configure RTC interrupt to catch alarm interrupts. All RTC interrupts are
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/stm32_sdio.c	2015-04-09 09:41:10.172333214 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/stm32_sdio.c	2015-04-09 11:40:57.016012794 +0530
+@@ -399,9 +399,6 @@
+ /* Interrupt Handling *******************************************************/
+ 
+ static int  stm32_interrupt(int irq, void *context);
+-#ifdef CONFIG_MMCSD_HAVE_SDIOWAIT_WRCOMPLETE
+-static int  stm32_rdyinterrupt(int irq, void *context);
+-#endif
+ 
+ /* SDIO interface methods ***************************************************/
+ 
+@@ -614,40 +611,12 @@
+                                  sdio_eventset_t wkupevent)
+ {
+   irqstate_t flags;
+-#ifdef CONFIG_MMCSD_HAVE_SDIOWAIT_WRCOMPLETE
+-  int pinset;
+-#endif
+ 
+   /* Save all of the data and set the new interrupt mask in one, atomic
+    * operation.
+    */
+-  flags = irqsave();
+-
+-#ifdef CONFIG_MMCSD_HAVE_SDIOWAIT_WRCOMPLETE
+-  if ((waitmask & SDIOWAIT_WRCOMPLETE) != 0)
+-    {
+-
+-      /* Do not use this in STM32_SDIO_MASK register */
+-
+-      waitmask &= !SDIOWAIT_WRCOMPLETE;
+-
+-      pinset = GPIO_SDIO_D0 & (GPIO_PORT_MASK|GPIO_PIN_MASK);
+-      pinset |= (GPIO_INPUT|GPIO_FLOAT|GPIO_EXTI);
+-
+-      /* Arm the SDIO_D Ready and install Isr */
+-
+-      stm32_gpiosetevent(pinset, true, false, false, stm32_rdyinterrupt);
+-    }
+-
+-  /* Disarm SDIO_D ready */
+ 
+-  if ((wkupevent & SDIOWAIT_WRCOMPLETE) != 0)
+-    {
+-	  stm32_gpiosetevent(GPIO_SDIO_D0, false, false, false , NULL);
+-	  stm32_configgpio(GPIO_SDIO_D0);
+-
+-    }
+-#endif
++  flags = irqsave();
+   priv->waitevents = waitevents;
+   priv->wkupevent  = wkupevent;
+   priv->waitmask   = waitmask;
+@@ -1260,28 +1229,7 @@
+ /****************************************************************************
+  * Interrrupt Handling
+  ****************************************************************************/
+-#ifdef CONFIG_MMCSD_HAVE_SDIOWAIT_WRCOMPLETE
+-/****************************************************************************
+- * Name: stm32_rdyinterrupt
+- *
+- * Description:
+- *   SDIO ready interrupt handler
+- *
+- * Input Parameters:
+- *   dev - An instance of the SDIO device interface
+- *
+- * Returned Value:
+- *   None
+- *
+- ****************************************************************************/
+ 
+-static int stm32_rdyinterrupt(int irq, void *context)
+-{
+-  struct stm32_dev_s *priv = &g_sdiodev;
+-  stm32_endwait(priv, SDIOWAIT_WRCOMPLETE);
+-  return OK;
+-}
+-#endif
+ /****************************************************************************
+  * Name: stm32_interrupt
+  *
+@@ -2280,14 +2228,6 @@
+    * interrupts.
+    */
+ 
+-#if defined(CONFIG_MMCSD_HAVE_SDIOWAIT_WRCOMPLETE)
+-  if ((eventset & SDIOWAIT_WRCOMPLETE) != 0)
+-    {
+-      waitmask = SDIOWAIT_WRCOMPLETE;
+-    }
+-  else
+-    {
+-#endif
+   waitmask = 0;
+   if ((eventset & SDIOWAIT_CMDDONE) != 0)
+     {
+@@ -2307,9 +2247,6 @@
+   /* Enable event-related interrupts */
+ 
+   putreg32(SDIO_WAITALL_ICR, STM32_SDIO_ICR);
+-#if defined(CONFIG_MMCSD_HAVE_SDIOWAIT_WRCOMPLETE)
+-   }
+-#endif
+   stm32_configwaitints(priv, waitmask, eventset, 0);
+ }
+ 
+@@ -2379,20 +2316,6 @@
+          }
+     }
+ 
+-#if defined(CONFIG_MMCSD_HAVE_SDIOWAIT_WRCOMPLETE)
+-  if ((priv->waitevents & SDIOWAIT_WRCOMPLETE) != 0)
+-    {
+-
+-      /* Atomically read pin to see if ready (true) and determine if ISR fired
+-      * If Pin is ready and if ISR did NOT fire end the wait here
+-      */
+-
+-      if (stm32_gpioread(GPIO_SDIO_D0) && ((priv->wkupevent & SDIOWAIT_WRCOMPLETE) == 0))
+-        {
+-          stm32_endwait(priv, SDIOWAIT_WRCOMPLETE);
+-        }
+-    }
+-#endif
+   /* Loop until the event (or the timeout occurs). Race conditions are avoided
+    * by calling stm32_waitenable prior to triggering the logic that will cause
+    * the wait to terminate.  Under certain race conditions, the waited-for
+--- Firmware/NuttX/nuttx/arch/arm/src/stm32/stm32_spi.c	2015-04-09 09:41:10.172333214 +0530
++++ pandapilot_v4/NuttX/nuttx/arch/arm/src/stm32/stm32_spi.c	2015-04-09 11:40:57.016012794 +0530
+@@ -406,7 +406,7 @@
+ {
+   .spidev   = { &g_sp4iops },
+   .spibase  = STM32_SPI4_BASE,
+-  .spiclock = STM32_PCLK2_FREQUENCY,
++  .spiclock = STM32_PCLK1_FREQUENCY,
+ #ifdef CONFIG_STM32_SPI_INTERRUPTS
+   .spiirq   = STM32_IRQ_SPI4,
+ #endif
+@@ -445,7 +445,7 @@
+ {
+   .spidev   = { &g_sp5iops },
+   .spibase  = STM32_SPI5_BASE,
+-  .spiclock = STM32_PCLK2_FREQUENCY,
++  .spiclock = STM32_PCLK1_FREQUENCY,
+ #ifdef CONFIG_STM32_SPI_INTERRUPTS
+   .spiirq   = STM32_IRQ_SPI5,
+ #endif
+@@ -484,7 +484,7 @@
+ {
+   .spidev   = { &g_sp6iops },
+   .spibase  = STM32_SPI6_BASE,
+-  .spiclock = STM32_PCLK2_FREQUENCY,
++  .spiclock = STM32_PCLK1_FREQUENCY,
+ #ifdef CONFIG_STM32_SPI_INTERRUPTS
+   .spiirq   = STM32_IRQ_SPI6,
+ #endif
+@@ -1035,9 +1035,7 @@
+           actual = priv->spiclock >> 8;
+         }
+ 
+-      spi_modifycr1(priv, 0, SPI_CR1_SPE);
+       spi_modifycr1(priv, setbits, SPI_CR1_BR_MASK);
+-      spi_modifycr1(priv, SPI_CR1_SPE, 0);
+ 
+       /* Save the frequency selection so that subsequent reconfigurations will be
+        * faster.
+@@ -1112,11 +1110,9 @@
+           return;
+         }
+ 
+-      spi_modifycr1(priv, 0, SPI_CR1_SPE);
+-      spi_modifycr1(priv, setbits, clrbits);
+-      spi_modifycr1(priv, SPI_CR1_SPE, 0);
++        spi_modifycr1(priv, setbits, clrbits);
+ 
+-      /* Save the mode so that subsequent re-configurations will be faster */
++        /* Save the mode so that subsequent re-configurations will be faster */
+ 
+ #ifndef CONFIG_SPI_OWNBUS
+         priv->mode = mode;
+@@ -1159,12 +1155,12 @@
+         {
+         case 8:
+           setbits = 0;
+-          clrbits = SPI_CR1_DFF|SPI_CR1_LSBFIRST;
++          clrbits = SPI_CR1_DFF;
+           break;
+ 
+         case 16:
+           setbits = SPI_CR1_DFF;
+-          clrbits = SPI_CR1_LSBFIRST;
++          clrbits = 0;
+           break;
+ 
+         default:
